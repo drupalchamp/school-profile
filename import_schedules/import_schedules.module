@@ -1,0 +1,14 @@
+<?php
+use Drupal\Core\Form\FormStateInterface;
+
+
+/**
+ * Implements hook_help().
+ */
+function import_schedules_help($route_name, \Drupal\Core\Routing\RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.import_schedules':
+      return '<p>' . t('This module allows importing of comment, K-12, and PK schedule data.') . '</p>';
+  }
+}
+
