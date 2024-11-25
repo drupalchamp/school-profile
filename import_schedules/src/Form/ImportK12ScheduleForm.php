@@ -159,10 +159,10 @@ public function submitForm(array &$form, FormStateInterface $form_state) {
               'field_homework_hours_value' => $homework_hr,
               'field_start_hour' => $extended_hour,
               'field_start_minute' => $extended_minute,
-              'field_start_am_pm' => $extended_am,
+              'field_start_am_pm' => strtolower($extended_am),
               'field_stop_hour' => $extended_time_hour,
               'field_stop_minute' => $extended_time_minute,
-              'field_stop_am_pm' => $extended_time_pm,
+              'field_stop_am_pm' => strtolower($extended_time_pm),
             ]);
 
             $paragraph->save();           

@@ -130,19 +130,20 @@ class ImportPKScheduleForm extends FormBase {
           
           if ($row > 0) { 
             
-            $school_profile_id = $data[0];
-            $age_from = $data[1];
-            $age_to = $data[2];
-            $start_hour = $data[3];
-            $start_minute = $data[4];
-            $start_am = $data[5];
-            $stop_hour = $data[6];
-            $stop_minute = $data[7];
-            $stop_pm = $data[8];
-            $tution_from = $data[9];
-            $tution_to = $data[10];
-            $days_per_wk = $data[11];
-            $teacher_student_ratio = $data[12];          
+            $nid = $data[0];
+            $school_profile_id = $data[1];
+            $age_from = $data[2];
+            $age_to = $data[3];
+            $start_hour = $data[4];
+            $start_minute = $data[5];
+            $start_am = $data[6];
+            $stop_hour = $data[7];
+            $stop_minute = $data[8];
+            $stop_pm = $data[9];
+            $tution_from = $data[10];
+            $tution_to = $data[11];
+            $days_per_wk = $data[12];
+            $teacher_student_ratio = $data[13];          
             
             $days_array = array_map('trim', explode(',', $days_per_wk));
             $ratios = array_map('trim', explode(':', $teacher_student_ratio));
@@ -155,7 +156,13 @@ class ImportPKScheduleForm extends FormBase {
                 $to_ratio = null;
             }           
           
-            $nodes = \Drupal::entityTypeManager()->getStorage('node')->loadByProperties(['field_school_profile_id' => $school_profile_id]);          
+            // Find the node by 'field_school_profile_id' (which should be a unique reference to the node)
+            if(empty($school_profile_id)){
+              $nodes = \Drupal::entityTypeManager()->getStorage('node')->loadByProperties(['nid' => $nid]);              
+            }
+            else{
+              $nodes = \Drupal::entityTypeManager()->getStorage('node')->loadByProperties(['field_school_profile_id' => $school_profile_id]);             
+            }          
 
             $node = reset($nodes);
 
@@ -168,10 +175,10 @@ class ImportPKScheduleForm extends FormBase {
                 ],
                 'field_start_hour' => $start_hour,
                 'field_start_minute' => $start_minute,
-                'field_start_am_pm' => $start_am,
+                'field_start_am_pm' => strtolower($start_am),
                 'field_stop_hour' => $stop_hour,
                 'field_stop_minute' => $stop_minute,
-                'field_stop_am_pm' => $stop_pm,
+                'field_stop_am_pm' => strtolower($stop_pm),
                 'field_tuition_from' => $tution_from,
                 'field_tuition_to' => $tution_to,
                 'field_days' => $days_array,
