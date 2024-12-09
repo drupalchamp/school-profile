@@ -1,0 +1,7 @@
+school_comparison_field_setting.settings:
+  path: '/admin/config/school-comparison'
+  defaults:
+    _title: 'School Comparison Field Setting'
+    _form: 'Drupal\school_comparison_field_setting\Form\SchoolComparisonFieldSettingForm'
+  requirements:
+    _permission: 'administer site configuration'

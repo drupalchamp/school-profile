@@ -1,0 +1,16 @@
+<?php 
+
+/**
+* Implements hook_page_attachments_alter*/
+
+
+function school_comparison_field_setting_page_attachments_alter(array &$page) {   
+    $page['#attached']['library'][] = 'school_comparison_field_setting/comparisontablestyling';  
+}
+
+function school_comparison_field_setting_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id){
+    if(($form_id == 'node_school_profile_edit_form') || ($form_id == 'node_school_profile_form')){
+        $form['field_schedule']['widget']['add_more']['add_more_button']['#value'] = t('@type', ['@type' => 'Add Schedule']);
+        $form['field_k_12_schedule']['widget']['add_more']['add_more_button_others_schedule']['#value'] = t('@type', ['@type' => 'Add Schedule']);
+    }
+}

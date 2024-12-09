@@ -1,0 +1,5 @@
+name: 'School Comparison Field Setting'
+type: module
+description: 'Use to manage the display of comparison table data.'
+package: 'EduProfile LLC'
+core_version_requirement: ^9.4 || ^10

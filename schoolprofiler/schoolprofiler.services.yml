@@ -1,0 +1,8 @@
+services:
+  schoolprofiler.twig.extension:
+    class: Drupal\schoolprofiler\Template\TwigExtension
+    tags:
+      - { name: twig.extension }
+  schoolprofiler.geo.cache: 
+    class: Drupal\schoolprofiler\Service\GeoCacheService 
+    arguments: ['@database']

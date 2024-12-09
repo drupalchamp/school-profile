@@ -1,0 +1,5 @@
+name: School Profile
+type: module
+description: Custom code to manage school profiles, school finder, and comparison tables
+package: EduProfile LLC 
+core_version_requirement: ^10

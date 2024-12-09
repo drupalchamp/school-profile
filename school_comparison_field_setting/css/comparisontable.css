@@ -1,0 +1,185 @@
+.data-display-none {
+    display: none;
+}
+
+body.user-logged-in .node-school-profile-edit-form.node-form .layout-region--secondary,
+body.user-logged-in .node-school-profile-form.node-form .layout-region--secondary {
+    z-index: -1 !important;
+}
+
+#node-school-profile-edit-form,
+#node-school-profile-form {
+    #edit-group-preschool-schedules .form-type--textfield {
+        display: flex;
+        gap: 5px;
+        align-items: center;
+    }
+
+    #edit-group-preschool-schedules .field--name-field-open-by,
+    #edit-group-preschool-schedules .field--name-field-open-until {
+        display: inline-block;
+        width: max-content;
+    }
+
+    #edit-group-preschool-schedules .field--name-field-open-by label,
+    #edit-group-preschool-schedules .field--name-field-open-until label {
+        text-wrap-mode: nowrap;
+    }
+
+    #edit-group-preschool-schedules .field--name-field-open-by input,
+    #edit-group-preschool-schedules .field--name-field-open-until input {
+        width: 100%;
+        max-width: 170px;
+    }
+
+    #edit-group-preschool-schedules .caption-top caption {
+        display: none;
+    }
+
+    #edit-group-preschool-schedules .field--name-field-age-range {
+        display: flex;
+        gap: 5px;
+    }
+
+    #edit-group-preschool-schedules .field-multiple-table .field_age_range input,
+    #edit-group-preschool-schedules .field_start_hour select,
+    #edit-group-preschool-schedules .field_start_minute select,
+    #edit-group-preschool-schedules .field_start_am_pm select,
+    #edit-group-preschool-schedules .field_stop_hour select,
+    #edit-group-preschool-schedules .field_stop_minute select,
+    #edit-group-preschool-schedules .field_stop_am_pm select {
+        max-width: 125px;
+    }
+
+    #edit-group-preschool-schedules td.field_age_range,
+    #edit-group-preschool-schedules td.field_start_hour,
+    #edit-group-preschool-schedules td.field_start_minute,
+    #edit-group-preschool-schedules td.field_start_am_pm,
+    #edit-group-preschool-schedules .field_stop_hour,
+    #edit-group-preschool-schedules .field_days,
+    #edit-group-preschool-schedules td.field_stop_minute,
+    #edit-group-preschool-schedules td.field_teacher_student_ratios,
+    #edit-group-preschool-schedules td.field_stop_am_pm {
+        padding: 6px;
+    }
+
+
+    #edit-group-preschool-schedules .field_tuition .field--name-field-tuition {
+        display: flex;
+        align-items: center;
+
+        input{
+            max-width: 135px;
+        }
+    }
+
+
+    #edit-group-preschool-schedules #edit-field-schedule-0-subform-field-days {
+        display: flex;
+    }
+
+    #edit-group-preschool-schedules .field--name-field-teacher-student-ratios {
+        display: flex;
+        gap: 5px;
+    }
+
+
+    #edit-group-preschool-schedules .field--name-field-teacher-student-ratios .form-item {
+        max-width: 75px;
+    }
+
+    .field--name-field-k-12-schedule .field_start_hour select,
+    .field--name-field-k-12-schedule .field_start_minute select,
+    .field--name-field-k-12-schedule .field_stop_hour select,
+    .field--name-field-k-12-schedule .field_stop_minute select{
+        max-width: 85px;
+    }
+    .field--name-field-k-12-schedule td.field_start_am_pm select,
+    .field--name-field-k-12-schedule td.field_stop_am_pm select{
+        max-width: 95px;
+    }
+
+    #edit-group-preschool-schedules .field-actions .paragraphs-add-wrapper {
+        font-size: 0;
+    }
+
+    #edit-group-preschool-schedule div#edit-field-schedule-add-more {
+        position: relative;
+        min-width: 120px;
+    }
+
+    #edit-group-preschool-schedule div#edit-field-schedule-add-more::before {
+        content: 'Add ';
+        position: absolute;
+        color: #000;
+        display: block;
+        z-index: 1;
+        font-size: 16px;
+    }
+
+    #edit-group-preschool-schedule div#edit-field-schedule-add-more input {
+        font-size: 0;
+        width: 100%;
+        height: 100%;
+        background: transparent;
+        z-index: 2;
+    }
+
+    #edit-group-k-12-schedules .caption-top caption {
+        display: none;
+    }
+
+    #edit-group-k-12-schedules .placeholder {
+        display: none;
+    }
+
+    .layout-region.layout-region--main {
+        width: 100%;
+    }
+
+    fieldset {
+        width: max-content;
+    }
+
+    .field_enrollment input,
+    .field_tuition_other input {
+        width: 100%;
+        max-width: 100px;
+    }
+
+    .field_homework_hours_value select {
+        width: 100%;
+    }
+
+    #edit-field-k-12-schedule-wrapper .field-actions {
+        font-size: 0;
+    }
+}
+
+.field--name-field-schedule-tab-data .fieldset-wrapper {
+    padding: 0 10px;
+}
+.field--name-field-schedule-tab-data .fieldset-wrapper label {
+    font-size: 1.071em;
+    font-weight: bold !important;
+}
+.field--name-field-schedule-tab-data .field--name-field-schedule {
+    margin-bottom: 20px;
+}
+.field--name-field-schedule-tab-data .field--name-field-k-12-schedule {
+    margin-bottom: 15px;
+}
+.field--name-field-schedule-tab-data .field--name-field-tuition-year .field__label {
+    color: #152f55;
+    font-size: 1.071em;
+    font-weight: bold;
+}
+.field--name-field-schedule-tab-data .field--name-field-tuition-year .field__item {
+    font-size: 0.929em;
+    font-weight: bold;
+    color: #3b3b3b;
+}
+.field_tuition_from input,
+.field_tuition_to input {
+    max-width: 130px;
+}

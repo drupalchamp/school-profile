@@ -1,0 +1,5 @@
+comparisontablestyling:
+  version: 1.0
+  css:
+    theme:
+      css/comparisontable.css: {}

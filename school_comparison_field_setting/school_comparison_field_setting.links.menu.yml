@@ -1,0 +1,5 @@
+school_comparison_field_setting.settings:
+  title: School Comparison Setting
+  parent: system.admin_config
+  route_name: school_comparison_field_setting.settings
+  weight: -5

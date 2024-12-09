@@ -1,0 +1,16 @@
+schoolprofiler.schoolfinder: # route name 
+  path: '/schoolfinder'
+  defaults:
+    _form: '\Drupal\schoolprofiler\Form\SchoolFinder'
+    _title: 'School Finder'
+  requirements:
+    _permission: 'access content' 
+
+
+schoolprofiler.controller:
+  path: '/compare/{school_type}/{grade}/{node_ids}'
+  defaults:
+    _controller: '\Drupal\schoolprofiler\Controller\SchoolProfilerController::content'
+    _title: 'School Comparison'
+  requirements:
+    _permission: 'access content'

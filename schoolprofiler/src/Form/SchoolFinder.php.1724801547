@@ -1,0 +1,931 @@
+<?php 
+
+namespace Drupal\schoolprofiler\Form ; 
+use Drupal\Core\Form\FormBase;
+use Drupal\Core\Form\FormStateInterface;
+use \Drupal\Core\Entity\Query\QueryInterface ; 
+use \Drupal\Core\Url;
+use \Drupal\Core\Link;
+
+use Drupal\Core\Database\Database;
+use Drupal\Core\Database\Query\PagerSelectExtender;
+
+class SchoolFinder extends FormBase { 	
+	
+	public function getFormId() { 
+		return 'school_finder_form';
+	}
+	
+	public function buildForm(array $form, FormStateInterface $form_state){ 
+		$form['sf'] = [
+			'#type' => 'container',
+			'#attributes' => [ 
+				'class' => [ 
+					'schoolfinder-search', 
+				],
+			],
+
+		]; 
+		$form['sf-compare'] = [
+			'#type' => 'container',
+			'#attributes' => [ 
+				'id' => 'schoolfinder-compare', 
+				'class' => 'schoolfinder-compare-wrapper', 
+			], 
+
+		]; 
+		$form['sf']['title'] = [ 
+			'#type' => 'item', 
+			'#markup' => $this->t('<h1>School Finder</h1>'), 
+		]; 
+		$form['sf']['instruction'] = [ 
+			'#type' => 'item', 
+			'#markup' => $this->t('<div id="intro1"> Select the school criteria in which you are interested and click the search button. </div> 
+			<div id="intro2"> <span>*</span> denotes required fields </div>'), 
+		]; 
+
+		$form['sf-compare']['title'] = [ 
+			'#type' => 'item', 
+			'#markup' => $this->t('<h1>Compare Tool</h1> <div id="schoolfinder-results"> No results</div>'), 
+			'#attributes' => [ 
+				'id' => 'schoolfinder-results', 
+				'class' => 'schoolfinder-results-wrapper', 
+			], 
+			'#allowed_tags' => ['button','span','input', 'a', 'div', 'img'], 
+		]; 
+
+		$form['sf']['search'] = [ 
+			'#type' => 'submit', 
+			'#value' => $this->t('Search'), 
+			'#ajax' => [
+				'callback' => '::submitSchoolSearchCallback',
+				'wrapper' => 'schoolfinder-results', 	
+			], 
+			'#value' => $this->t('Search'), 
+
+		];
+
+		$form['sf']['bc'] = [
+			'#title' => $this->t('Basic Criteria'), 
+			'#type' => 'fieldset', 
+		]; 	
+
+		$form['sf']['bc']['school_name'] = [
+
+			'#type' => 'textfield', 
+			'#title' => $this->t('School name'),
+		    '#size' => 60, 
+			'#maxlength' => 128, 
+		 	'#default_value' => $form_state->getValue('school_name'), 	
+			'#required' => FALSE, 
+
+		] ; 
+
+		$form['sf']['bc']['grade'] = [
+			'#type' => 'select', 
+			'#title' => $this->t('Your child\'s grade'), 
+			'#options' => [
+				'PK' => $this->t('Preschool'), 
+				'K' => $this->t('Kindergarten'), 
+				'1' => $this->t('1st'), 
+				'2' => $this->t('2nd'), 
+				'3' => $this->t('3rd'), 
+				'4' => $this->t('4th'), 
+				'5' => $this->t('5th'), 
+				'6' => $this->t('6th'), 
+				'7' => $this->t('7th'), 
+				'8' => $this->t('8th'), 
+				'9' => $this->t('9th'), 
+				'10' => $this->t('10th'), 
+				'11' => $this->t('11th'), 
+				'12' => $this->t('12th'), 
+			], 
+			'#required' => TRUE, 
+			'#empty_option' => $this->t('Select your child\'s grade'), 
+			'#default_value' => $form_state->getValue('grade'), 
+
+		] ; 
+
+		$form['sf']['bc']['school_type'] = [ 
+			'#type' => 'radios', 
+			'#title' => $this->t('School type'),
+			'#required' => TRUE, 
+			'#options' => [ 
+				'1' => $this->t('Private'), 
+				'2' => $this->t('Public'), 
+				'3' => $this->t('Community Based Orgnaization (CBO)'), 
+			], 
+			'#prefix' => '<div id="school-type-wrapper">',
+			'#suffix' => '</div>',	
+
+		]; 
+		
+		$form['sf']['bc']['location'] = [
+			'#tree' => TRUE, 
+			'#title' => $this->t('Location'), 
+			'#type' => 'fieldset', 
+		]; 	
+
+		$form['sf']['bc']['location']['address1'] = [
+			'#type' => 'textfield', 
+			'#title' => $this->t('Address'),
+		    '#size' => 60, 
+			'#maxlength' => 128, 
+		 	'#default_value' => $form_state->getValue('address1'), 	
+			'#required' => FALSE, 
+		] ; 
+
+		$form['sf']['bc']['location']['city'] = [
+			'#type' => 'textfield', 
+			'#title' => $this->t('City'),
+		        '#size' => 30, 
+			'#maxlength' => 128, 
+		 	'#default_value' => $form_state->getValue('city'), 	
+			'#required' => FALSE, 
+		] ; 
+
+		$form['sf']['bc']['location']['zip'] = [
+			'#type' => 'textfield', 
+			'#title' => $this->t('Zip code'),
+		        '#size' => 10, 
+			'#maxlength' => 5, 
+		 	'#default_value' => $form_state->getValue('zip'), 	
+			'#required' => FALSE, 
+		] ; 
+		
+		$form['sf']['bc']['location']['distance'] = [
+			'#type' => 'select', 
+			'#title' => $this->t('Maximum distance'), 
+			'#options' => [
+				'0.5' => $this->t('Within 0.5 miles'), 
+				'1' => $this->t('Within 1 mile'), 
+				'1.5' => $this->t('Within 1.5 miles'), 
+				'2' => $this->t('Within 2 miles'), 
+				'5' => $this->t('Within 5 miles'), 
+			], 
+			'#required' => FALSE, 
+			'#empty_option' => $this->t('--All--'), 
+			'#states' => [ 
+				'visible' => [ 
+					':input[name="zip"]' => ['filled' => TRUE], 
+				], 
+			],
+
+
+		] ; 
+		// private school advanced search criteria (psas) 
+		
+		$form['sf']['psas'] = [
+			'#tree' => TRUE, 
+			'#title' => $this->t('Private School Advanced Search'), 
+			'#type' => 'fieldset', 
+			'#states' => [ 
+				'visible' => [ 
+					':input[name="school_type"]' => ['value' => 1], 
+					':input[name="grade"]' => ['!value' => 'PK'], 
+				], 
+			],
+		]; 	
+
+		$field_religious_affiliation = [
+			'#type' => 'select', 
+			'#title' => $this->t('Religious Affiliation'), 
+			'#options' => [
+				'1' => $this->t('Nonsectarian'),
+				'2' => $this->t('Jewish'),
+				'3' => $this->t('Presbyterian'),
+				'4' => $this->t('Quaker'),
+				'5' => $this->t('Catholic'),
+				'6' => $this->t('Methodist'),
+				'7' => $this->t('Episcopalian'),
+				'8' => $this->t('Other'),
+			], 
+			'#required' => FALSE, 
+			'#empty_option' => $this->t('--All--'), 
+			'#default_value' => $form_state->getValue('religious_affiliation'), 
+
+		] ; 
+
+		$form['sf']['psas']['religious_affiliation'] = $field_religious_affiliation ; 
+
+		
+		$field_enrollment =  [ 
+			'#type' => 'select', 
+			'#title' => $this->t('Enrollment'),
+			'#options' => [
+				'< 100' => $this->t('Less than 100'), 
+				'between 100 and 250' => $this->t('Between 100 and 250'), 
+				'between 250 and 500' => $this->t('Between 250 and 500'), 
+				'between 500 and 1000' => $this->t('Between 500 and 1000'), 
+				'>= 1000' => $this->t('Greater than 1000'),
+
+			], 	
+			'#required' => FALSE, 
+			'#empty_option' => $this->t('--All--'), 
+		]; 
+		
+		$form['sf']['psas']['enrollment'] = $field_enrollment ; 
+		
+		$field_grades_served = [ 
+			'#type' => 'select', 
+			'#title' => $this->t('Grades served'),
+			'#options' => [
+				'K-5' => $this->t('K - 5'), 
+				'K-8' => $this->t('K - 8'), 
+				'K-12' => $this->t('K - 12'), 
+				'6-8' => $this->t('6 - 8'), 
+				'6-12' => $this->t('6 - 12'), 
+				'9-12' => $this->t('9 - 12'), 
+			], 	
+			'#required' => FALSE, 
+			'#empty_option' => $this->t('--All--'), 
+			'#states' => [ 
+				'invisible' => [ 
+					':input[name="grade"]' => ['value' => 'PK'], 
+				], 
+			],
+		]; 
+		
+		$form['sf']['psas']['grades_served'] = $field_grades_served  ;  
+
+		$field_maximum_tuition = [ 
+			'#type' => 'select', 
+			'#title' => $this->t('Maximum tuition'),
+			'#options' => [
+				'10000' => $this->t('Less than $10,000'), 
+				'15000' => $this->t('Less than $15,000'), 
+				'20000' => $this->t('Less than $20,000'), 
+				'25000' => $this->t('Less than $25,000'), 
+				'30000' => $this->t('Less than $30,000'), 
+				'> 35000' => $this->t('$30,000 ore more'), 
+
+			], 	
+			'#required' => FALSE, 
+			'#empty_option' => $this->t('--All--'), 
+			'#states' => [ 
+				'invisible' => [ 
+					':input[name="grade"]' => ['value' => 'PK'], 
+				], 
+			],
+		]; 
+		
+		$form['sf']['psas']['maximum_tuition'] = $field_maximum_tuition ; 
+
+		$field_coed = [ 
+			'#type' => 'select', 
+			'#title' => $this->t('Coeducational'),
+			'#options' => [
+				1 => $this->t('Boys only'), 
+				2 => $this->t('Girls only'), 
+				3 => $this->t('Coeducational'), 
+
+			], 	
+			'#required' => FALSE, 
+			'#empty_option' => $this->t('--All--'), 
+			'#states' => [ 
+				'invisible' => [ 
+					':input[name="grade"]' => ['value' => 'PK'], 
+				], 
+			],
+		]; 
+
+		$form['sf']['psas']['coed'] = $field_coed ; 
+
+
+		// private preschool advanced search (ppas)
+		
+		
+		$form['sf']['ppk_as'] = [
+			'#tree' => TRUE, 
+			'#title' => $this->t('Private Preschool School Advanced Search'), 
+			'#type' => 'fieldset', 
+			'#states' => [ 
+				'visible' => [ 
+					':input[name="grade"]' => ['value' => 'PK'], 
+					':input[name="school_type"]' => ['value' => 1], 
+				], 
+			],
+		]; 	
+		$form['sf']['ppk_as']['age'] = [
+			'#title' => $this->t('What age will your child be when she or he enrolls in school?'), 
+			'#type' => 'fieldset', 
+			'#states' => [ 
+				'visible' => [ 
+					':input[name="school_type"]' => ['value' => 1], 
+					':input[name="grade"]' => ['value' => 'PK'], 
+				], 
+			],
+		]; 	
+
+
+		$form['sf']['ppk_as']['age']['pk_age_year']  = [ 
+			'#type' => 'select', 
+			'#title' => $this->t('Year'), 
+			'#options' => [
+				0 => $this->t('0'),
+				1 => $this->t('1'),
+				2 => $this->t('2'),
+				3 => $this->t('3'),
+				4 => $this->t('4'),
+				5 => $this->t('5'),
+			], 
+			'#required' => FALSE, 
+			'#empty_option' => $this->t('--All--'), 
+		]; 
+		
+		$form['sf']['ppk_as']['age']['pk_age_month']  = [ 
+			'#type' => 'select', 
+			'#title' => $this->t('Months'), 
+			'#options' => [
+				0 => $this->t('0'),
+				1 => $this->t('1'),
+				2 => $this->t('2'),
+				3 => $this->t('3'),
+				4 => $this->t('4'),
+				5 => $this->t('5'),
+				6 => $this->t('6'),
+				7 => $this->t('7'),
+				8 => $this->t('8'),
+				9 => $this->t('9'),
+				10 => $this->t('10'),
+				11 => $this->t('11'),
+				12 => $this->t('12'),
+			], 
+			'#required' => FALSE, 
+			'#empty_option' => $this->t('--All--'), 
+		]; 
+
+		// philosophy are term tags 
+		//
+		$field_philosophy  = [ 
+			'#type' => 'select', 
+			'#title' => $this->t('Educational Philosophy'), 
+			'#options' => [
+				1 => $this->t('Traditional'), 
+				2 => $this->t('Developmental'), 
+				3 => $this->t('Montessori'), 
+				4 => $this->t('Eclectic'), 
+				5 => $this->t('Play-based'), 
+				6 => $this->t('Day Care'), 
+				7 => $this->t('Reggio Emelia'), 
+				8 => $this->t('Other'), 
+				9 => $this->t('Special Education'), 
+				10 => $this->t('Waldorf'), 
+
+			], 
+			'#required' => FALSE, 
+			'#empty_option' => $this->t('--All--'), 
+
+		]; 
+		
+		$form['sf']['ppk_as']['philosophy']  = $field_philosophy ; 
+
+
+		$form['sf']['ppk_as']['enrollment'] = $field_enrollment  ; 
+
+		$form['sf']['ppk_as']['religious_affiliation'] = $field_religious_affiliation ; 
+
+		$field_min_days_offered  = [ 
+			'#type' => 'select', 
+			'#title' => $this->t('Minimum days offered'), 
+			'#options' => [
+				1 => $this->t('1'), 
+				2 => $this->t('2'), 
+				3 => $this->t('3'), 
+				4 => $this->t('4'), 
+				5 => $this->t('5'), 
+			], 
+			'#required' => FALSE, 
+			'#empty_option' => $this->t('--All--'), 
+			'#states' => [ 
+				'visible' => [ 
+					':input[name="grade"]' => ['value' => 'PK'], 
+				], 
+			],
+
+		]; 
+		
+		$form['sf']['ppk_as']['min_days_offered']  = $field_min_days_offered  ; 
+		
+		$form['sf']['ppk_as']['schedule']  = [ 
+			'#title' => $this->t('Schedule'), 
+			'#type' => 'fieldset', 
+		]; 
+
+
+		$form['sf']['ppk_as']['schedule']['open_by']  = [ 
+			'#type' => 'select', 
+			'#title' => $this->t('Open By'), 
+			'#options' => [
+				'04:00 AM' => $this->t('4:00 AM'),
+				'05:00 AM' => $this->t('5:00 AM'),
+				'06:00 AM' => $this->t('6:00 AM'),
+				'07:00 AM' => $this->t('7:00 AM'),
+				'08:00 AM' => $this->t('8:00 AM'),
+				'09:00 AM' => $this->t('9:00 AM'),
+				'10:00 AM' => $this->t('10:00 AM'),
+				'11:00 AM' => $this->t('11:00 AM'),
+			], 
+			'#required' => FALSE, 
+			'#empty_option' => $this->t('--All--'), 
+		]; 
+		
+		$form['sf']['ppk_as']['schedule']['open_until']  = [ 
+			'#type' => 'select', 
+			'#title' => $this->t('Open Until'), 
+			'#options' => [
+				'12:00 PM' => $this->t('12:00 PM'),
+				'01:00 PM' => $this->t('1:00 PM'),
+				'02:00 PM' => $this->t('2:00 PM'),
+				'03:00 PM' => $this->t('3:00 PM'),
+				'04:00 PM' => $this->t('4:00 PM'),
+				'05:00 PM' => $this->t('5:00 PM'),
+				'06:00 PM' => $this->t('6:00 PM'),
+				'07:00 PM' => $this->t('7:00 PM'),
+				'08:00 PM' => $this->t('8:00 PM'),
+				'09:00 PM' => $this->t('9:00 PM'),
+			], 
+			'#required' => FALSE, 
+			'#empty_option' => $this->t('--All--'), 
+		]; 
+
+		// public preschool advanced search
+		
+		$form['sf']['public_pk_as'] = [
+			'#title' => $this->t('Public Preschool Advanced Search'), 
+			'#type' => 'fieldset', 
+			'#states' => [ 
+				'visible' => [ 
+					':input[name="school_type"]' => ['value' => 2 ], 
+					':input[name="grade"]' => ['value' => 'PK' ], 
+				], 
+			],
+		]; 	
+		
+		$form['sf']['public_pk_as']['characteristics'] = [
+		 	'#type' => 'checkboxes', 
+		  	'#title' => $this->t('School characteristics'), 	
+			'#options' => [
+				1 => $this->t('Dual language'), 
+				2 => $this->t('Arts Focus'), 
+				3 => $this->t('Career and Technical Education'), 
+				4 => $this->t('CBO'), 
+				5 => $this->t('Charter School'), 
+				6 => $this->t('Educational Options'), 
+				7 => $this->t('Gifted and Talented Program'), 
+				8 => $this->t('Neighborhood School'), 
+				9 => $this->t('New Immigrant Program'), 
+				10 => $this->t('Selective Program'), 
+				11 => $this->t('Transfer High School'), 
+				12 => $this->t('Unzoned School'), 
+				13 => $this->t('Wheelchair Accessible'), 
+				14 => $this->t('Summer Program'), 
+				15 => $this->t('Before School Program'), 
+				16 => $this->t('Special Education'), 
+			], 
+		];
+
+		// public school advanced search
+		
+		$form['sf']['public_as'] = [
+			'#tree' => TRUE,
+			'#title' => $this->t('Public School Advanced Search'), 
+			'#type' => 'fieldset', 
+			'#states' => [ 
+				'visible' => [ 
+					':input[name="school_type"]' => ['value' => 2 ], 
+					':input[name="grade"]' => ['!value' => 'PK' ], 
+				], 
+			],
+		]; 	
+
+
+		$form['sf']['public_as']['characteristics'] = [
+		 	'#type' => 'checkboxes', 
+		  	'#title' => $this->t('School characteristics'), 	
+			'#options' => [
+				1 => $this->t('Dual language'), 
+				2 => $this->t('Arts Focus'), 
+				3 => $this->t('Career and Technical Education'), 
+				4 => $this->t('CBO'), 
+				5 => $this->t('Charter School'), 
+				6 => $this->t('Educational Options'), 
+				7 => $this->t('Gifted and Talented Program'), 
+				8 => $this->t('Neighborhood School'), 
+				9 => $this->t('New Immigrant Program'), 
+				10 => $this->t('Selective Program'), 
+				11 => $this->t('Transfer High School'), 
+				12 => $this->t('Unzoned School'), 
+				13 => $this->t('Wheelchair Accessible'), 
+				14 => $this->t('Summer Program'), 
+				15 => $this->t('Before School Program'), 
+			], 
+		];
+
+		$form['sf']['public_as']['grades_served'] = [
+			'#type' => 'select', 
+			'#title' => $this->t('Grades served'),
+			'#options' => [
+				'K-5' => $this->t('K - 5'), 
+				'K-8' => $this->t('K - 8'), 
+				'K-12' => $this->t('K - 12'), 
+				'6-8' => $this->t('6 - 8'), 
+				'6-12' => $this->t('6 - 12'), 
+				'9-12' => $this->t('9 - 12'), 
+			], 	
+			'#required' => FALSE, 
+			'#empty_option' => $this->t('--All--'), 
+			'#states' => [ 
+				'invisible' => [ 
+					':input[name="grade"]' => ['value' => 'PK'], 
+				], 
+			],
+		]; 
+
+
+		$form['sf']['public_as']['enrollment'] = [
+			'#type' => 'select', 
+			'#title' => $this->t('Enrollment'),
+			'#options' => [
+				'< 100' => $this->t('Less than 100'), 
+				'between 100 and 250' => $this->t('Between 100 and 250'), 
+				'between 250 and 500' => $this->t('Between 250 and 500'), 
+				'between 500 and 1000' => $this->t('Between 500 and 1000'), 
+				'>= 1000' => $this->t('Greater than 1000'),
+
+			], 	
+			'#required' => FALSE, 
+			'#empty_option' => $this->t('--All--'), 
+		]; 
+		
+
+		// cbo advanced search
+		$form['sf']['cbo_as'] = [
+			'#tree' => TRUE, 
+			'#title' => $this->t('CBO School Advanced Search'), 
+			'#type' => 'fieldset', 
+			'#states' => [ 
+				'visible' => [ 
+					':input[name="school_type"]' => ['value' => 3], 
+				], 
+			],
+		]; 	
+
+		$form['sf']['cbo_as']['preschool'] = [
+			'#title' => $this->t('What age will your child be when she or he enrolls in school?'), 
+			'#type' => 'fieldset', 
+			'#states' => [ 
+				'visible' => [ 
+					':input[name="school_type"]' => ['value' => 3], 
+					':input[name="grade"]' => ['value' => 'PK'], 
+				], 
+			],
+		]; 	
+
+		$form['sf']['cbo_as']['preschool']['pk_age_year']  = [
+			'#type' => 'select', 
+			'#title' => $this->t('Year'), 
+			'#options' => [
+				0 => $this->t('0'),
+				1 => $this->t('1'),
+				2 => $this->t('2'),
+				3 => $this->t('3'),
+				4 => $this->t('4'),
+				5 => $this->t('5'),
+			], 
+			'#required' => FALSE, 
+			'#empty_option' => $this->t('--All--'), 
+		]; 
+
+
+		$form['sf']['cbo_as']['preschool']['pk_age_month'] = [
+			'#type' => 'select', 
+			'#title' => $this->t('Months'), 
+			'#options' => [
+				0 => $this->t('0'),
+				1 => $this->t('1'),
+				2 => $this->t('2'),
+				3 => $this->t('3'),
+				4 => $this->t('4'),
+				5 => $this->t('5'),
+				6 => $this->t('6'),
+				7 => $this->t('7'),
+				8 => $this->t('8'),
+				9 => $this->t('9'),
+				10 => $this->t('10'),
+				11 => $this->t('11'),
+				12 => $this->t('12'),
+			], 
+			'#required' => FALSE, 
+			'#empty_option' => $this->t('--All--'), 
+		]; 
+
+		$form['sf']['cbo_as']['preschool']['philosophy']  = $field_philosophy ; 
+
+		$form['sf']['cbo_as']['preschool']['min_days_offered'] =  $field_min_days_offered  ; 
+
+		$form['sf']['cbo_as']['religious_affiliation'] = $field_religious_affiliation ; 
+
+		$form['sf']['cbo_as']['enrollment'] = $field_enrollment ; 
+
+		$form['sf']['cbo_as']['grades_served'] = $field_grades_served ; 
+		$form['sf']['cbo_as']['maximum_tuition'] = $field_maximum_tuition ; 
+		$form['sf']['cbo_as']['coed'] = $field_coed  ; 
+		
+		$form['sf']['search2'] = [ 
+			'#type' => 'submit', 
+			'#ajax' => [
+				'callback' => '::submitSchoolSearchCallback',
+				'wrapper' => 'schoolfinder-results', 	
+			], 
+			'#value' => $this->t('Search'), 
+		];
+
+
+		return $form ; 
+	}
+
+
+	public function validateForm(array &$form, FormStateInterface $form_state) { 
+		if ($form_state->getValue('school_name') == 'Reuben') { 
+			$form_state->setErrorByName('school_name', $this->t('Reuben is an invalid value.')); 
+		} 
+	}
+
+
+	public function submitForm(array &$form, FormStateInterface $form_state) { 
+
+	}
+
+	protected function schoolProfileSearchQuery($params){
+
+		$nodeStorage = \Drupal::entityTypeManager()->getStorage('node');
+
+		$query = $nodeStorage->getQuery()
+		     ->condition('status', 1)
+		     ->condition('type', 'school_profile')
+		     ->sort('title', 'ASC') 
+		     ->accessCheck(FALSE) ; 
+
+		if (!empty($params['title'])){
+			$query->condition('title', '%' . $params['title'] . '%', 'LIKE') ; 
+		}
+
+		$query->condition('field_school_type', $params['school_type']) ; 
+		
+		// Add pager extender to the query 
+		
+		//	$query = $query->extend(PagerSelectExtender::class)->limit(10); // Set the limit of items per page
+		//
+		$query->range(0, 20);
+
+
+		$ids = $query->execute();  
+
+		$nodes = $nodeStorage->loadMultiple($ids);
+
+		return $nodes ; 
+	}
+
+
+	public function submitSchoolSearchCallback(array &$form, FormStateInterface $form_state){
+
+		//dpm($form_state) ; 
+		$node_value = "<ul>" ; 
+
+		$element = $form['sf-compare'] ; 
+		$school_name = $form_state->getValue('school_name') ; 
+		$grade = $form_state->getValue('grade') ;		
+		$school_type = $form_state->getValue('school_type') ; 				
+		$address = $form_state->getValue(['location', 'address1']) ; 		
+		$city = $form_state->getValue(['location', 'city']) ; 
+		$zip= $form_state->getValue(['location', 'zip']) ; 
+		$distance= $form_state->getValue(['location', 'distance']) ; 		
+		$characteristics = array() ; 		
+		$params = [] ; 
+
+		$params['school_type'] = $school_type  ; 
+		dpm('school type => ' . $params['school_type']) ; 
+
+		if (!empty($school_name)){
+			$params['title'] = $school_name ; 
+		}
+
+		if ($grade == 'PK' && $school_type == 1){ 
+		
+			$rel_affiliate = $form_state->getValue(['ppk_as', 'religious_affiliation']) ; 
+
+			if (!empty($rel_affiliate)){
+				$params['rel_affiliate'] = $rel_affiliate ; 
+			}
+
+			$enrollment = $form_state->getValue(['ppk_as', 'enrollment']) ; 
+
+			if (!empty($enrollment)){
+				$params['enrollment'] = $enrollment ; 
+			}
+
+			$grades_served = $form_state->getValue(['ppk_as', 'grades_served']) ; 
+			
+			if (!empty($grades_served)){
+				$params['grades_served'] = $grades_served ; 
+			}
+
+
+			$max_tuition = $form_state->getValue(['ppk_as', 'maximum_tution']) ; 
+
+			if (!empty($max_tuition)){
+				$params['max_tuition'] = $max_tuition ; 
+			}
+
+			$coed = $form_state->getValue(['ppk_as', 'coed']) ; 
+
+			if (!empty($coed)){
+				$params['coed'] = $coed ; 
+			}
+
+			$pk_age_year = $form_state->getValue(['ppk_as', 'age', 'pk_age_year']) ; 
+
+			if (!empty($pk_age_year)){
+				$params['pk_age_year'] = $pk_age_year ; 
+			}
+
+			$pk_age_month = $form_state->getValue(['ppk_as', 'age', 'pk_age_month']) ; 
+
+			if (!empty($pk_age_month)){
+				$params['pk_age_month'] = $pk_age_month ; 
+			}
+			$philosophy = $form_state->getValue(['ppk_as', 'philosophy']) ; 
+
+			if (!empty($philosophy)){
+				$params['philosophy'] = $philosophy ; 
+			}
+
+			$min_days_offered = $form_state->getValue(['ppk_as', 'min_days_offered']) ; 
+
+			if (!empty($min_days_offered)){
+				$params['min_days_offered'] = $min_days_offered ; 
+			}
+
+			$open_by = $form_state->getValue(['ppk_as', 'schedule', 'open_by']) ; 
+
+			if (!empty($open_by)){
+				$params['open_by'] = $open_by ; 
+			}
+			$open_until = $form_state->getValue(['ppk_as', 'schedule', 'open_until']) ; 
+			if (!empty($open_until)){
+				$params['open_until'] = $open_until ; 
+			}
+		}
+		else if ($grade != 'PK' && $school_type == 1){
+			$rel_affiliate = $form_state->getValue(['psas', 'religious_affiliation']) ; 
+
+		}
+		else if ($grade == 'PK' && $school_type == 3){
+			$rel_affiliate = $form_state->getValue(['cbo_as', 'religious_affiliation']) ; 
+			if (!empty($rel_affiliate)){
+				$params['rel_affiliate'] = $rel_affiliate ; 
+			}
+
+			$enrollment = $form_state->getValue(['cbo_as', 'enrollment']) ; 
+			if (!empty($enrollment)){
+				$params['enrollment'] = $enrollment ; 
+			}
+
+			$pk_age_year = $form_state->getValue(['cbo_as', 'preschool', 'pk_age_year']) ; 
+			if (!empty($pk_age_year)){
+				$params['pk_age_year'] = $pk_age_year ; 
+			}
+
+			$pk_age_month = $form_state->getValue(['cbo_as', 'preschool', 'pk_age_month']) ; 
+			if (!empty($pk_age_month)){
+				$params['pk_age_month'] = $pk_age_month ; 
+			}
+
+			$philosophy = $form_state->getValue(['cbo_as', 'preschool',  'philosophy']) ; 
+			if (!empty($philosophy)){
+				$params['philosophy'] = $philosophy ; 
+			}
+
+			$min_days_offered = $form_state->getValue(['cbo_as', 'preschool', 'min_days_offered']) ; 
+			if (!empty($min_days_offered)){
+				$params['min_days_offered'] = $min_days_offered ; 
+			}
+		}
+		else if ($grade != 'PK' && $school_type == 3){
+
+			$rel_affiliate = $form_state->getValue(['cbo_as', 'religious_affiliation']) ; 
+			if (!empty($rel_affiliate)){
+				$params['rel_affiliate'] = $rel_affiliate ; 
+			}
+
+
+			$enrollment = $form_state->getValue(['cbo_as', 'enrollment']) ; 
+			if (!empty($enrollment)){
+				$params['enrollment'] = $enrollment ; 
+			}
+
+
+			$grades_served = $form_state->getValue(['cbo_as', 'grades_served']) ; 
+			if (!empty($grades_served)){
+				$params['grades_served'] = $grades_served ; 
+			}
+
+
+			$max_tuition = $form_state->getValue(['cbo_as', 'maximum_tution']) ; 
+			if (!empty($max_tuition)){
+				$params['max_tuition'] = $max_tuition ; 
+			}
+
+
+			$coed = $form_state->getValue(['cbo_as', 'coed']) ; 
+			if (!empty($coed)){
+				$params['coed'] = $coed ; 
+			}
+
+		}
+
+		else if ($grade != 'PK' && $school_type == 2){
+
+			$characteristics = $form_state->getValue(['public_as', 'characteristics']) ; 
+
+			if (!empty($characteristics)){
+				$params['characteristics'] = $characteristics ; 
+			}
+
+			$enrollment = $form_state->getValue(['public_as', 'enrollment']) ; 
+
+			if (!empty($enrollment)){
+				$params['enrollment'] = $enrollment ; 
+			}
+			
+			$grades_served = $form_state->getValue(['public_as', 'grades_served']) ; 
+			if (!empty($grades_served)){
+				$params['grades_served'] = $grades_served ; 
+			}
+
+		}
+
+; 
+
+		$node_value .= '<li> School Name: ' . $school_name . '</li>' ; 
+		$node_value .= '<li> Grade: ' . $grade . '</li>' ; 
+		$node_value .= '<li> School type: ' . $school_type . '</li>' ; 
+		$node_value .= '<li> Address: ' . $address . '</li>' ; 
+		$node_value .= '<li> City: ' . $city . '</li>' ; 
+		$node_value .= '<li> Zip: ' . $zip . '</li>' ; 
+		$node_value .= '<li> Distance: ' . $distance . '</li>' ; 
+		$node_value .= '<li> Religious Affiliation: ' . $rel_affiliate . '</li>' ; 
+		$node_value .= '<li> Enrollment: ' . $enrollment . '</li>' ; 
+		$node_value .= '<li> Grades served: ' . $grades_served . '</li>' ; 
+		$node_value .= '<li> Maximum tuition: ' . $max_tuition . '</li>' ; 
+		$node_value .= '<li> Coeducational: ' . $coed . '</li>' ; 
+		$node_value .= '<li> Preschool age - Year: ' . $pk_age_year . '</li>' ; 
+		$node_value .= '<li> Preschool age - Month: ' . $pk_age_month . '</li>' ; 
+		$node_value .= '<li> Philosophy: ' . $philosophy . '</li>' ; 
+		$node_value .= '<li> Minimum days offered: ' . $min_days_offered . '</li>' ; 
+		$node_value .= '<li> Open by: ' . $open_by . '</li>' ; 
+		$node_value .= '<li> Open until: ' . $open_until . '</li>' ; 
+		$node_value .= '<li> School characteristics: ' . implode(", ", $characteristics) . '</li>' ; 
+
+
+		foreach ($form_state->getValues() as $key => $value) { 
+			$node_value .= '<p>' . $key . ' => ' . $value . '</p>' ; 
+		}
+		$values =  $form_state->getValues() ; 
+
+		$psas = $form_state->getValue(['psas', 'enrollment']) ; 
+
+		$nodes =  $this->schoolProfileSearchQuery($params) ; 
+
+		
+		$node_value .= 'pk_age_year => ' .  $psas; 
+		
+		$html_header  = '' ; 
+		$link_options = [
+			'attributes' => ['class' => ['sf-nid-checkbox'], 'target' => ['_blank'] ], 
+
+		] ; 
+
+		$html = "" ; 
+
+		$sf_results_form = array() ; 
+
+		foreach($nodes as $node) {
+
+			$id = $node->id() ; 
+
+			$node_link = "<a href=\"{$node->toUrl()->toString()}\">{$node->title->value}</a>" ; 
+
+			$html .= "<div id=\"node-{$node->id()}\">" ; 
+			$html .= "<input class=\"sf-nid-checkbox\" type=\"checkbox\" name=\"nid\" value=\"{$node->id()}\" id=\"nid-{$node->id()}\">"   ; 
+			$html .= "<label for=\"node-{$node->id()}\"> {$node_link} </label></div>" ;
+		}
+
+		$form['sf-compare']['title']['#markup'] = "<div id=\"schoolfinder-results\"> <div id=\"compare-btn-top\" class=\"compare-btn\"> <span class=\"clear-compare-list\"> </span><a class=\"compare-url\" target=\"_blank\" href=\"/compare/$school_type/$grade\"> <img src=\"/modules/custom/schoolprofiler/images/compare.png\"> </a></div> {$html} <div id=\"compare-btn-bottom\" class=\"compare-btn\"> <span class=\"clear-compare-list\"> </span><a class=\"compare-url\" target=\"_blank\" href=\"/compare/$school_type/$grade\"> <img src=\"/modules/custom/schoolprofiler/images/compare.png\"> </a></div>" ; 
+
+		return $form['sf-compare']['title'] ;
+	}
+
+
+}

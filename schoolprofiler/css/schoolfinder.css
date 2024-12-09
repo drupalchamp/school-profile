@@ -1,0 +1,132 @@
+#student-tab-data .field__label,
+#teacher-tab-data .field__label,
+#student-performance-tab-data .field__label{
+    font-weight: bold;
+}
+.title-grade-address-wrapper {
+    margin-bottom: 25px;
+}
+.schoolname-grade-address::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    background: #000000;
+    display: inline-block;
+    border-radius: 25px;
+    margin-right: 7px;
+}
+.schoolname-grade-address a {
+    text-decoration: none;
+}
+table.comparison-table a {
+    color: #ffffff;
+    text-decoration: none;
+}
+table.comparison-table a:hover{
+    color: #ffffff !important;
+    text-decoration: underline !important;
+}
+
+.js-form-item.js-form-type-select.form-type-select.js-form-item-ppk-as-age-pk-age-year.form-item-ppk-as-age-pk-age-year.mb-3, .js-form-item.js-form-type-select.form-type-select.js-form-item-ppk-as-age-pk-age-month.form-item-ppk-as-age-pk-age-month.mb-3  {
+
+	float: left; 
+	width: 50% ; 
+}
+
+fieldset.preschool-schedule-start-stop-group .fieldset__wrapper {
+    display: table-cell;
+}
+
+
+fieldset.preschool-schedule-start-stop-group {
+    display: inline-block;
+    width: 45%;
+    margin-right: 2.5% ; 
+
+}
+
+
+
+.preschool-schedule-start-stop-group .fieldset__wrapper { 
+	border: 1px solid #ccc; 
+	padding: 10px; 
+	overflow: hidden; /* Clear floats within the fieldset */
+
+
+}
+
+/*
+.preschool-schedule-start-stop-group .form-element { 
+
+	float: left;
+	width: 25% ; 
+	margin-right: 5% ; 
+	margin-bottom: 10px; 
+
+
+}
+
+*/
+.preschool-schedule-start-stop-group > div > div {
+	display: block; 
+	float: left ; 
+	margin-bottom: 5px;
+
+}
+
+.field--name-field-days > fieldset > div > div > div {
+    display: inline-block;
+}
+
+div#edit-field-schedule-0-subform-field-age-range-0--description {
+    clear: both;
+}
+
+
+#edit-ppk-as-schedule > div > div.js-form-item.js-form-type-select.form-type-select.js-form-item-ppk-as-schedule-open-by.form-item-ppk-as-schedule-open-by.mb-3, #edit-ppk-as-schedule > div > div.js-form-item.js-form-type-select.form-type-select.js-form-item-ppk-as-schedule-open-until.form-item-ppk-as-schedule-open-until.mb-3 { 
+	float: left ; 
+	width: 50% ; 
+}
+
+.school-address { 
+	color: #993721 ; 
+	font-size: xx-small ; 
+}
+#school-type-wrapper .form-item-school-type {
+    display: inline-block;
+    margin-right: 15px;
+}
+#reset-rows {
+    margin-bottom: 15px;
+}
+#reset-rows a{
+    color: #993721;
+    text-decoration: none;
+}
+#reset-rows a:hover{
+    color: #0071b3;
+    text-decoration: underline;
+}
+.comparison-table table tr th:last-child {
+    min-width: 25px;
+}
+.comparison-table tr td:last-child {
+    background: url(../images/close.png) no-repeat center;
+    font-size: 0;
+    cursor: pointer;
+}
+/*******Data source**********/ 
+div#student_demographics_data {
+    position: relative;
+    margin-bottom: 50px;
+}
+#student_demographics_data .source-data {
+    position: absolute;
+    left: 0;
+    bottom: -50px;
+    z-index: 999;
+}
+
+.students-performance tr td:first-child {
+    width: 125px;
+}

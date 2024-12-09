@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@drupal/once": "^1.0.1"
+  }
+}
