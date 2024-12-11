@@ -284,19 +284,13 @@ class SchoolProfilerController extends ControllerBase {
 				}
 
 			$config = \Drupal::config('school_comparison_field_setting.settings');
-			$pub_data_attendence_rate = $config->get('data_attendence_rate');
-			
-		///	dpr($a_s_data) ; 
-	//		dpr($nid) ; 
-//
+			$pub_data_attendence_rate = $config->get('data_attendence_rate');			
+
 			foreach($a_s_data as $key => $data){
-				// print attendance rows 
-				//dpr($data) ; 
 				$attendance_rows['Attendance Rate'][$nid] = '<td>' . $a_s_data[$nid]['Attendance Rate'] . '</td>';
 				$suspension_rows['Suspension Rate'][$nid] = '<td>' . $a_s_data[$nid]['Suspension Rate'] . '</td>';
-			}
-			}
-				
+				}
+			}				
 				$table_rows_attendence_rate['Attendance Rate'] = '<tr><td>Attendance Rate</td>' . implode('', $attendance_rows['Attendance Rate']) . 
 					'<td><a href="#" class="close-row">close</a></td></tr>'; 
 
@@ -536,7 +530,7 @@ class SchoolProfilerController extends ControllerBase {
 			}else {			
 				$row .= '<td><a href="#" class="close-row">close</a></td></tr>'; // Add a close button to each row
 				$table_rows_student_demographics[] = $row;
-			} 			
+			} 	
 			
 		}
 
@@ -559,34 +553,6 @@ class SchoolProfilerController extends ControllerBase {
 				$table_rows_average_class_size[] = $row;
 			} 
 		}
-
-		// Prepare table rows based on the collected data for for Attendence rate
-	/*	$table_rows_attendence_rate = [];
-		foreach ($a_s_data as $ar_subject => $values) {
-			\Drupal::logger('what_a_nice_logName')->warning('<pre><code>' . print_r($ar_subject.":".$values, TRUE) . '</code></pre>');
-			
-				foreach($values as $k => $val){
-					\Drupal::logger('what_a_nice_logName2')->warning('<pre><code>' . print_r($k.":".$val, TRUE) . '</code></pre>');
-				
-						$row = '<tr><td>' . $k . '</td>';
-						
-						$row .= '<td>' . ($val ?? 'NA') . '</td>';
-						// foreach ($node_ids_array as $node_id) {
-						// 	$row .= '<td>' . ($val ?? 'NA') . '</td>';
-						// } 
-					
-						$config = \Drupal::config('school_comparison_field_setting.settings');
-						$pub_data_attendence_rate = $config->get('data_attendence_rate');
-						if ($pub_data_attendence_rate == 2) {
-							$row = '<tr class="data-display-none"><td>Attendence Rates</td><td>close</td></tr>';
-							$table_rows_attendence_rate[]= $row;  // Concatenate the row to the string
-						} else {            
-							$row .= '<td><a href="#" class="close-row">close</a></td></tr>'; // Add a close button to each row
-							$table_rows_attendence_rate[] = $row;  // Concatenate the row to the string
-						}	
-		}
-		}
-	 */
 
 		// Prepare table rows based on the collected data for student characteristics.
 		$table_rows_student_characteristics = [];
