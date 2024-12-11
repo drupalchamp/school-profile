@@ -1,7 +1,0 @@
-name: 'Import schedules'
-type: module
-description: 'A module to import schedules for comments, K-12, and PK.'
-core_version_requirement: ^10
-package: Custom
-dependencies:
-  - csv_importer:csv_importer

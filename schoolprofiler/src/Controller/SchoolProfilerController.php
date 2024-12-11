@@ -245,38 +245,64 @@ class SchoolProfilerController extends ControllerBase {
 
 			// Iterate over the nodes and collect data for Attendence Rate.
 			$attendence_data = [];
+			$a_s_data= [];
+			$attendance_rows = [] ; 
+			$suspension_rows = [] ; 
 			foreach ($node_ids_array as $nid) {
 				if ($node = Node::load($nid)) {
-					$attendence_rate_data = json_decode($node->attendance_suspension ?: '[]', true);			  
-					if (!empty($attendence_rate_data)) {
-					foreach ($attendence_rate_data as $entry) {   
-					\Drupal::logger('attendence_rate')->warning('<pre><code>' . print_r($entry, TRUE) . '</code></pre>');                      
-						// $ar_subject = Html::escape($entry['SUBJECT']);
-						$ar_subject = 'Attendance Rate';
-						if (isset($entry['ATTENDANCE_RATE']) && !empty(trim($entry['ATTENDANCE_RATE']))) {
-							$ar_value = Html::escape($entry['ATTENDANCE_RATE']);
-						} else {
-							$ar_value = 'NA';
-						}
-							if (!isset($attendence_data[$ar_subject])) {
-								$attendence_data[$ar_subject] = [];
+					// Decode JSON data
+					$attendence_rate_data = json_decode($node->attendance_suspension ?: '[]', true);						
+					// Check if decoding was successful and it's an array
+					if (is_array($attendence_rate_data)) {
+						
+						$a_data = $attendence_rate_data['SCHOOL'];
+					
+						foreach ($a_data as $entry) {							
+												         
+							if (is_array($entry)) {
+								if(!empty($entry['ATTENDANCE_RATE'])){									
+									$a_s_data[$nid][ 'Attendance Rate']  = $entry['ATTENDANCE_RATE'];	
+								} 
+								else { 
+									$a_s_data[$nid][ 'Attendance Rate']  = 'NA';	
+								}
+
+								if(!empty($entry['SUSPENSION_RATE'])){									
+									$a_s_data[$nid]['Suspension Rate'] = $entry['SUSPENSION_RATE'] ; 
+								}
+								else { 
+									$a_s_data[$nid]['Suspension Rate'] = '0' ; 
+								}
 							}
-							$attendence_data[$ar_subject][$nid] = $ar_value;
-						}
-					}	  
+							else {
+								$a_s_data[$nid] = [] ;
+							}
+						}						
+			
+					}  
 	
 				}
+
+			$config = \Drupal::config('school_comparison_field_setting.settings');
+			$pub_data_attendence_rate = $config->get('data_attendence_rate');
+			
+		///	dpr($a_s_data) ; 
+	//		dpr($nid) ; 
+//
+			foreach($a_s_data as $key => $data){
+				// print attendance rows 
+				//dpr($data) ; 
+				$attendance_rows['Attendance Rate'][$nid] = '<td>' . $a_s_data[$nid]['Attendance Rate'] . '</td>';
+				$suspension_rows['Suspension Rate'][$nid] = '<td>' . $a_s_data[$nid]['Suspension Rate'] . '</td>';
 			}
-	  
-		  foreach ($attendence_data as $ar_subject => $values) {
-			  if (!isset($table_rows_attendence_rate[$ar_subject])) {
-				  $table_rows_attendence_rate[$ar_subject] = '<tr><td>' . $ar_subject . '</td>';
-			  }
-			  foreach ($node_ids_array as $node_id) {
-				  $table_rows_attendence_rate[$ar_subject] .= '<td>' . ($values[$node_id] ?? 'NA') . '</td>';
-			  }              
-			  $table_rows_attendence_rate[$ar_subject] .= '<td><a href="#" class="close-row">close</a></td></tr>'; 
-		  }
+			}
+				
+				$table_rows_attendence_rate['Attendance Rate'] = '<tr><td>Attendance Rate</td>' . implode('', $attendance_rows['Attendance Rate']) . 
+					'<td><a href="#" class="close-row">close</a></td></tr>'; 
+
+				$table_rows_attendence_rate['Suspension Rate'] = '<tr><td>Suspension Rate</td>' . implode('', $suspension_rows['Suspension Rate']) . 
+				'<td><a href="#" class="close-row">close</a></td></tr>'; 
+			// dpr($table_rows_attendence_rate) ; 
 
 			// Iterate over the nodes and collect data for student characteristics.
 			$subject_data1 = [];
@@ -350,7 +376,8 @@ class SchoolProfilerController extends ControllerBase {
 					if ($node->regents !== null) {
 						$regents_data = json_decode($node->regents ?: '[]', true);
 						if (!empty($regents_data)) {
-							foreach ($regents_data as $entry) {
+							foreach ($regents_data as $entry) {							
+
 								$reg_subject = Html::escape($entry['SUBJECT']);					
 
 								if (isset($entry['MEETS_SCHOOL']) && !empty(trim($entry['MEETS_SCHOOL']))) {
@@ -534,24 +561,32 @@ class SchoolProfilerController extends ControllerBase {
 		}
 
 		// Prepare table rows based on the collected data for for Attendence rate
-		$table_rows_attendence_rate = [];
-		foreach ($attendence_rate_data as $ar_subject => $values) {
-			$row = '<tr><td>' . $ar_subject . '</td>';
-
-			foreach ($node_ids_array as $node_id) {
-				$row .= '<td>' . ($values[$node_id] ?? 'NA') . '</td>';
-			} 
-		
-			$config = \Drupal::config('school_comparison_field_setting.settings');
-			$pub_data_attendence_rate = $config->get('data_attendence_rate');
-			if ($pub_data_attendence_rate == 2) {
-				$row = '<tr class="data-display-none"><td>Attendence Rates</td><td>close</td></tr>';
-				$table_rows_attendence_rate[]= $row;  // Concatenate the row to the string
-			} else {            
-				$row .= '<td><a href="#" class="close-row">close</a></td></tr>'; // Add a close button to each row
-				$table_rows_attendence_rate[] = $row;  // Concatenate the row to the string
-			}
+	/*	$table_rows_attendence_rate = [];
+		foreach ($a_s_data as $ar_subject => $values) {
+			\Drupal::logger('what_a_nice_logName')->warning('<pre><code>' . print_r($ar_subject.":".$values, TRUE) . '</code></pre>');
+			
+				foreach($values as $k => $val){
+					\Drupal::logger('what_a_nice_logName2')->warning('<pre><code>' . print_r($k.":".$val, TRUE) . '</code></pre>');
+				
+						$row = '<tr><td>' . $k . '</td>';
+						
+						$row .= '<td>' . ($val ?? 'NA') . '</td>';
+						// foreach ($node_ids_array as $node_id) {
+						// 	$row .= '<td>' . ($val ?? 'NA') . '</td>';
+						// } 
+					
+						$config = \Drupal::config('school_comparison_field_setting.settings');
+						$pub_data_attendence_rate = $config->get('data_attendence_rate');
+						if ($pub_data_attendence_rate == 2) {
+							$row = '<tr class="data-display-none"><td>Attendence Rates</td><td>close</td></tr>';
+							$table_rows_attendence_rate[]= $row;  // Concatenate the row to the string
+						} else {            
+							$row .= '<td><a href="#" class="close-row">close</a></td></tr>'; // Add a close button to each row
+							$table_rows_attendence_rate[] = $row;  // Concatenate the row to the string
+						}	
 		}
+		}
+	 */
 
 		// Prepare table rows based on the collected data for student characteristics.
 		$table_rows_student_characteristics = [];
