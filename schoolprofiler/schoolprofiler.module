@@ -44,172 +44,172 @@ function schoolprofiler_preprocess_page__school_profile(&$variables) {
 /**
  * Implements hook_entity_load().
  */
-function schoolprofiler_entity_load(array $entities) {
-  // Iterate over the entities to add custom data to nodes.
-  foreach ($entities as $entity) {
-    // Check if the entity is a node.
-	  if ($entity instanceof NodeInterface && $entity->getType() === 'school_profile') {
-		        if ($entity->hasField('field_school_type') && !$entity->get('field_school_type')->isEmpty()) {
-				$school_type = $entity->get('field_school_type')->value;
+// function schoolprofiler_entity_load(array $entities) {
+//   // Iterate over the entities to add custom data to nodes.
+//   foreach ($entities as $entity) {
+//     // Check if the entity is a node.
+// 	  if ($entity instanceof NodeInterface && $entity->getType() === 'school_profile') {
+// 		        if ($entity->hasField('field_school_type') && !$entity->get('field_school_type')->isEmpty()) {
+// 				$school_type = $entity->get('field_school_type')->value;
 
-				if ($school_type != 1 ){ //school is not private school 
-				}
-					if ($entity->hasField('field_school_code') && !$entity->get('field_school_code')->isEmpty()) {
-						$school_code = $entity->get('field_school_code')->value;
+// 				if ($school_type != 1 ){ //school is not private school 
+// 				}
+// 					if ($entity->hasField('field_school_code') && !$entity->get('field_school_code')->isEmpty()) {
+// 						$school_code = $entity->get('field_school_code')->value;
 
 
-						// query database for student demographics and attach
+// 						// query database for student demographics and attach
 
-						$student_demo_json = schoolprofiler_get_json_data($school_code, 'NY_STUDENT_DEMOGRAPHICS') ; 
-						$entity->student_demographics = $student_demo_json ; 
+// 						$student_demo_json = schoolprofiler_get_json_data($school_code, 'NY_STUDENT_DEMOGRAPHICS') ; 
+// 						$entity->student_demographics = $student_demo_json ; 
 						 
-						// query database for student enrollment
+// 						// query database for student enrollment
 
-						$student_enrollment_json = schoolprofiler_get_json_data($school_code, 'NY_ENROLLMENT') ; 
-						$entity->student_enrollment = $student_enrollment_json ; 
+// 						$student_enrollment_json = schoolprofiler_get_json_data($school_code, 'NY_ENROLLMENT') ; 
+// 						$entity->student_enrollment = $student_enrollment_json ; 
 
-						// query database for average class size
+// 						// query database for average class size
 
-						$avg_class_size_json = schoolprofiler_get_json_data($school_code, 'NY_AVG_CLASS_SIZE_SUMMARY') ; 
-						$entity->avg_class_size = $avg_class_size_json ; 
+// 						$avg_class_size_json = schoolprofiler_get_json_data($school_code, 'NY_AVG_CLASS_SIZE_SUMMARY') ; 
+// 						$entity->avg_class_size = $avg_class_size_json ; 
 						
-						// query database for student characteristics
-						$student_char_json = schoolprofiler_get_json_data($school_code, 'NY_STUDENT_CHARACTERISTICS') ; 
-						$entity->student_characteristics = $student_char_json ; 
+// 						// query database for student characteristics
+// 						$student_char_json = schoolprofiler_get_json_data($school_code, 'NY_STUDENT_CHARACTERISTICS') ; 
+// 						$entity->student_characteristics = $student_char_json ; 
 						
-						// query database for teacher charateristics 
-						$teacher_char_json = schoolprofiler_get_json_data($school_code, 'NY_TEACHER_CHARACTERISTICS') ; 
-						$entity->teacher_characteristics = $teacher_char_json ; 
+// 						// query database for teacher charateristics 
+// 						$teacher_char_json = schoolprofiler_get_json_data($school_code, 'NY_TEACHER_CHARACTERISTICS') ; 
+// 						$entity->teacher_characteristics = $teacher_char_json ; 
 						
-						// query database for attendance and suspensions
-						$attendance_suspension_json = schoolprofiler_get_json_data($school_code, 'NY_ATTENDANCE_SUSPENSIONS') ; 
-						$entity->attendance_suspension = $attendance_suspension_json ; 
+// 						// query database for attendance and suspensions
+// 						$attendance_suspension_json = schoolprofiler_get_json_data($school_code, 'NY_ATTENDANCE_SUSPENSIONS') ; 
+// 						$entity->attendance_suspension = $attendance_suspension_json ; 
 
-						// query database for student performance
-						$regents_json = schoolprofiler_get_json_data($school_code, 'NY_REGENTS_GROUP') ; 
-						$entity->regents = $regents_json ; 
+// 						// query database for student performance
+// 						$regents_json = schoolprofiler_get_json_data($school_code, 'NY_REGENTS_GROUP') ; 
+// 						$entity->regents = $regents_json ; 
 
-						// query database for high school completion rates
-						$hs_completion_rates_json = schoolprofiler_get_json_data($school_code, 'NY_HS_COMPLETION_RATES') ; 
-						$entity->hs_completion_rates = $hs_completion_rates_json ; 
+// 						// query database for high school completion rates
+// 						$hs_completion_rates_json = schoolprofiler_get_json_data($school_code, 'NY_HS_COMPLETION_RATES') ; 
+// 						$entity->hs_completion_rates = $hs_completion_rates_json ; 
 
-						// query database for Student Performance Group
-						$students_performance_group_json = schoolprofiler_get_json_data($school_code, 'NY_STUDENT_PERFORMANCE_GROUP') ; 
-						$entity->students_performance_group = $students_performance_group_json ;						
+// 						// query database for Student Performance Group
+// 						$students_performance_group_json = schoolprofiler_get_json_data($school_code, 'NY_STUDENT_PERFORMANCE_GROUP') ; 
+// 						$entity->students_performance_group = $students_performance_group_json ;						
 
-		//dpm($entity->get('field_grades_served')->getValue()) ; 
+// 		//dpm($entity->get('field_grades_served')->getValue()) ; 
 
-					}
+// 					}
 
-			}
-    }
-  }
-}
+// 			}
+//     }
+//   }
+// }
 
 
-function schoolprofiler_get_json_data($school_code, $table_name){
-	$connection = Database::getConnection('default', 'nyse');
-	$prefix = 'e' ; 
-	$field_name = 'JSON_DATA' ; 
-	$key_field = 'ENTITY_CD' ; 
-	$query = $connection->select($table_name, $prefix)
-	      ->fields($prefix, [$field_name])
-	      ->condition($prefix . '.' . $key_field, $school_code);
-	// Execute the query and fetch the result.
-	$result = $query->execute()->fetchAll();
+// function schoolprofiler_get_json_data($school_code, $table_name){
+// 	$connection = Database::getConnection('default', 'nyse');
+// 	$prefix = 'e' ; 
+// 	$field_name = 'JSON_DATA' ; 
+// 	$key_field = 'ENTITY_CD' ; 
+// 	$query = $connection->select($table_name, $prefix)
+// 	      ->fields($prefix, [$field_name])
+// 	      ->condition($prefix . '.' . $key_field, $school_code);
+// 	// Execute the query and fetch the result.
+// 	$result = $query->execute()->fetchAll();
 
-    // Check if the result is not empty and the field exists.
-    if (!empty($result) && isset($result[0]->$field_name)) {
-        return $result[0]->$field_name;
-    }
+//     // Check if the result is not empty and the field exists.
+//     if (!empty($result) && isset($result[0]->$field_name)) {
+//         return $result[0]->$field_name;
+//     }
 
-	return null ; 
+// 	return null ; 
 
-}
+// }
 
-function schoolprofiler_get_nyse_table($table_name, $key_field, $field_name, $field_value, $title, $class_field, $content_field_name, $field_type = 'string'){
+// function schoolprofiler_get_nyse_table($table_name, $key_field, $field_name, $field_value, $title, $class_field, $content_field_name, $field_type = 'string'){
 
-	$connection = Database::getConnection('default', 'nyse');
+// 	$connection = Database::getConnection('default', 'nyse');
 	
-	$prefix = 'e' ; 
-	$query = $connection->select($table_name, $prefix)
-	      ->fields($prefix, [$field_name])
-	      ->condition($prefix . '.' . $key_field, $field_value);
-	// Execute the query and fetch the result.
-	$result = $query->execute()->fetchAll();
+// 	$prefix = 'e' ; 
+// 	$query = $connection->select($table_name, $prefix)
+// 	      ->fields($prefix, [$field_name])
+// 	      ->condition($prefix . '.' . $key_field, $field_value);
+// 	// Execute the query and fetch the result.
+// 	$result = $query->execute()->fetchAll();
 
-	/*
-	 * NY_ENROLLMENT
-	 * NY_AVG_CLASS_SIZE_SUMMARY
-	 * NY_STUDENT_DEMOGRAPHICS
-	 * NY_STUDENT_CHARACTERISTICS
-	 * NY_TEACHER_CHARACTERISTICS
-	 * NY_STUDENT_PERFORMANCE_GROUP
-	 * NY_ATTENDANCE_SUSPENSIONS
-	 * NY_REGENTS_GROUP
-	 * NY_HS_COMPLETION_RATES
-	 *
-	 *
-	 */
+// 	/*
+// 	 * NY_ENROLLMENT
+// 	 * NY_AVG_CLASS_SIZE_SUMMARY
+// 	 * NY_STUDENT_DEMOGRAPHICS
+// 	 * NY_STUDENT_CHARACTERISTICS
+// 	 * NY_TEACHER_CHARACTERISTICS
+// 	 * NY_STUDENT_PERFORMANCE_GROUP
+// 	 * NY_ATTENDANCE_SUSPENSIONS
+// 	 * NY_REGENTS_GROUP
+// 	 * NY_HS_COMPLETION_RATES
+// 	 *
+// 	 *
+// 	 */
 
-	$blockid = 0 ; 
+// 	$blockid = 0 ; 
 
-	switch($table_name) { 
-		case 'NY_ENROLLMENT': 
-			$blockid = 16 ; 
-			break ; 
-		case 'NY_AVG_CLASS_SIZE_SUMMARY': 
-			$blockid = 17 ; 
-			break ; 
-		case 'NY_STUDENT_DEMOGRAPHICS': 
-			$blockid = 18 ; 
-			break ; 
-		case 'NY_STUDENT_CHARACTERISTICS': 
-			$blockid = 19 ; 
-			break ; 
-		case 'NY_TEACHER_CHARACTERISTICS': 
-			$blockid = 20 ; 
-			break ; 
-		case 'NY_STUDENT_PERFORMANCE_GROUP': 
-			$blockid = 21 ; 
-			break ; 
-		case 'NY_ATTENDANCE_SUSPENSIONS': 
-			$blockid = 22 ; 
-			break ; 
-		case 'NY_REGENTS_GROUP': 
-			$blockid = 23 ; 
-			break ; 
-		case 'NY_HS_COMPLETION_RATES': 
-			$blockid = 24 ; 
-			break ; 
-	}
+// 	switch($table_name) { 
+// 		case 'NY_ENROLLMENT': 
+// 			$blockid = 16 ; 
+// 			break ; 
+// 		case 'NY_AVG_CLASS_SIZE_SUMMARY': 
+// 			$blockid = 17 ; 
+// 			break ; 
+// 		case 'NY_STUDENT_DEMOGRAPHICS': 
+// 			$blockid = 18 ; 
+// 			break ; 
+// 		case 'NY_STUDENT_CHARACTERISTICS': 
+// 			$blockid = 19 ; 
+// 			break ; 
+// 		case 'NY_TEACHER_CHARACTERISTICS': 
+// 			$blockid = 20 ; 
+// 			break ; 
+// 		case 'NY_STUDENT_PERFORMANCE_GROUP': 
+// 			$blockid = 21 ; 
+// 			break ; 
+// 		case 'NY_ATTENDANCE_SUSPENSIONS': 
+// 			$blockid = 22 ; 
+// 			break ; 
+// 		case 'NY_REGENTS_GROUP': 
+// 			$blockid = 23 ; 
+// 			break ; 
+// 		case 'NY_HS_COMPLETION_RATES': 
+// 			$blockid = 24 ; 
+// 			break ; 
+// 	}
 
-	$block = \Drupal\block_content\Entity\BlockContent::load($blockid);
-	// \Drupal::logger('block_data')->warning('<pre><code>' . print_r($block, TRUE) . '</code></pre>');
-	if ($block) {
-		$block_content = \Drupal::entityTypeManager()->getViewBuilder('block_content')->view($block);
-		$rendered_block = \Drupal::service('renderer')->renderRoot($block_content);
-	} else {
-		$rendered_block = '<p>Block not found.</p>';
-	}
+// 	$block = \Drupal\block_content\Entity\BlockContent::load($blockid);
+// 	// \Drupal::logger('block_data')->warning('<pre><code>' . print_r($block, TRUE) . '</code></pre>');
+// 	if ($block) {
+// 		$block_content = \Drupal::entityTypeManager()->getViewBuilder('block_content')->view($block);
+// 		$rendered_block = \Drupal::service('renderer')->renderRoot($block_content);
+// 	} else {
+// 		$rendered_block = '<p>Block not found.</p>';
+// 	}
 
-	if (array_key_exists(0, $result) && $result[0]->$field_name){ 
+// 	if (array_key_exists(0, $result) && $result[0]->$field_name){ 
 
-	return array(
-      		'html' => 
-        '<div id="'. $class_field . '" class="field field--name-field-' . $class_field . ' field--type-' . $field_type . ' field--label-above ">
-         <div class="field__label">' . $title . '</div>
-         <div class="field__item">' . $result[0]->$field_name . '</div>
-         <div class="source-data">' . $rendered_block .'</div>
-        </div>',
-    	'content_field_name' => $content_field_name,
-		);  
-	}
-	else { 
-		return false ; 
-	}
+// 	return array(
+//       		'html' => 
+//         '<div id="'. $class_field . '" class="field field--name-field-' . $class_field . ' field--type-' . $field_type . ' field--label-above ">
+//          <div class="field__label">' . $title . '</div>
+//          <div class="field__item">' . $result[0]->$field_name . '</div>
+//          <div class="source-data">' . $rendered_block .'</div>
+//         </div>',
+//     	'content_field_name' => $content_field_name,
+// 		);  
+// 	}
+// 	else { 
+// 		return false ; 
+// 	}
 
-}
+// }
 
 /**
 * Implements hook_page_attachments_alter
@@ -246,206 +246,206 @@ function schoolprofiler_page_attachments_alter(array &$page) {
  * Implements hook_preprocess_page().
  */
 
-function schoolprofiler_preprocess_page(array &$variables) {
+// function schoolprofiler_preprocess_page(array &$variables) {
 
 
-	// if ($variables['node'] &&  $variables['node']->getType()  == 'school_profile') { 
-	if (isset($variables['node']) && is_object($variables['node']) && $variables['node']->getType() == 'school_profile') {   
+// 	// if ($variables['node'] &&  $variables['node']->getType()  == 'school_profile') { 
+// 	if (isset($variables['node']) && is_object($variables['node']) && $variables['node']->getType() == 'school_profile') {   
 
-		$school_code = $variables['node']->get('field_school_code')->value ; 
+// 		$school_code = $variables['node']->get('field_school_code')->value ; 
 
-		// Student related data
-		$result = schoolprofiler_get_nyse_table('NY_ENROLLMENT', 'ENTITY_CD', 'HTML_TABLE', $school_code, 'Student Enrollment', 'student-tab-data', 'student_enrollment', 'string') ; 
-		if ($result) { 
-		// Add custom HTML to the content.
-		$variables['page']['content'][$result['content_field_name']] = [ 
-			'#type' => 'markup', 
-			'#markup' => $result['html'], 
+// 		// Student related data
+// 		$result = schoolprofiler_get_nyse_table('NY_ENROLLMENT', 'ENTITY_CD', 'HTML_TABLE', $school_code, 'Student Enrollment', 'student-tab-data', 'student_enrollment', 'string') ; 
+// 		if ($result) { 
+// 		// Add custom HTML to the content.
+// 		$variables['page']['content'][$result['content_field_name']] = [ 
+// 			'#type' => 'markup', 
+// 			'#markup' => $result['html'], 
 			
-		];
-		}
+// 		];
+// 		}
 
-		$result = schoolprofiler_get_nyse_table('NY_AVG_CLASS_SIZE_SUMMARY', 'ENTITY_CD', 'HTML_TABLE', $school_code, 'Average Class Size', 'student-tab-data', 'average_class_size', 'string') ; 
-		if ($result) { 
-    	// Add custom HTML to the content.
-		$variables['page']['content'][$result['content_field_name']] = [ 
-			'#type' => 'markup', 
-			'#markup' => $result['html'], 
-		];
-		}
+// 		$result = schoolprofiler_get_nyse_table('NY_AVG_CLASS_SIZE_SUMMARY', 'ENTITY_CD', 'HTML_TABLE', $school_code, 'Average Class Size', 'student-tab-data', 'average_class_size', 'string') ; 
+// 		if ($result) { 
+//     	// Add custom HTML to the content.
+// 		$variables['page']['content'][$result['content_field_name']] = [ 
+// 			'#type' => 'markup', 
+// 			'#markup' => $result['html'], 
+// 		];
+// 		}
 
-		$result = schoolprofiler_get_nyse_table('NY_STUDENT_DEMOGRAPHICS', 'ENTITY_CD', 'JSON_DATA', $school_code, 'Student Demograhics', 'student-tab-data', 'student_demographics', 'string') ; 
-		if ($result) { 
-    	// Add custom HTML to the content.
-		$variables['page']['content'][$result['content_field_name']] = [ 
-			'#type' => 'markup', 
-			'#markup' => '<div id="student_demographics_data">' . $result['html'] . '<div id="demographics_chart"></div></div>', 
-			// '#allowed_tags' => array_merge(Xss::getHtmlTagList(), ['canvas', 'div'])			
+// 		$result = schoolprofiler_get_nyse_table('NY_STUDENT_DEMOGRAPHICS', 'ENTITY_CD', 'JSON_DATA', $school_code, 'Student Demograhics', 'student-tab-data', 'student_demographics', 'string') ; 
+// 		if ($result) { 
+//     	// Add custom HTML to the content.
+// 		$variables['page']['content'][$result['content_field_name']] = [ 
+// 			'#type' => 'markup', 
+// 			'#markup' => '<div id="student_demographics_data">' . $result['html'] . '<div id="demographics_chart"></div></div>', 
+// 			// '#allowed_tags' => array_merge(Xss::getHtmlTagList(), ['canvas', 'div'])			
 			
-		];
-		}
+// 		];
+// 		}
 
-		$result = schoolprofiler_get_nyse_table('NY_STUDENT_CHARACTERISTICS', 'ENTITY_CD', 'HTML_TABLE', $school_code, 'Student Characteristics', 'student-tab-data', 'student_characteristics', 'string') ; 
-		if ($result) { 
-    	// Add custom HTML to the content.
-		$variables['page']['content'][$result['content_field_name']] = [ 
-			'#type' => 'markup', 
-			'#markup' => $result['html'], 
-		];
-		}
+// 		$result = schoolprofiler_get_nyse_table('NY_STUDENT_CHARACTERISTICS', 'ENTITY_CD', 'HTML_TABLE', $school_code, 'Student Characteristics', 'student-tab-data', 'student_characteristics', 'string') ; 
+// 		if ($result) { 
+//     	// Add custom HTML to the content.
+// 		$variables['page']['content'][$result['content_field_name']] = [ 
+// 			'#type' => 'markup', 
+// 			'#markup' => $result['html'], 
+// 		];
+// 		}
 
-		// Teacher related data
-		$result = schoolprofiler_get_nyse_table('NY_TEACHER_CHARACTERISTICS', 'ENTITY_CD', 'HTML_TABLE', $school_code, 'Teacher Characteristics', 'teacher-tab-data', 'teacher_characteristics', 'string') ; 
-		if ($result) { 
-    	// Add custom HTML to the content.
-		$variables['page']['content'][$result['content_field_name']] = [ 
-			'#type' => 'markup', 
-			'#markup' => $result['html'], 
-		];
-		}
+// 		// Teacher related data
+// 		$result = schoolprofiler_get_nyse_table('NY_TEACHER_CHARACTERISTICS', 'ENTITY_CD', 'HTML_TABLE', $school_code, 'Teacher Characteristics', 'teacher-tab-data', 'teacher_characteristics', 'string') ; 
+// 		if ($result) { 
+//     	// Add custom HTML to the content.
+// 		$variables['page']['content'][$result['content_field_name']] = [ 
+// 			'#type' => 'markup', 
+// 			'#markup' => $result['html'], 
+// 		];
+// 		}
 
-		// Student Performance related data
-		$result = schoolprofiler_get_nyse_table('NY_STUDENT_PERFORMANCE_GROUP', 'ENTITY_CD', 'HTML_TABLE', $school_code, 'The percent of students who met (level 3 or higher) or exceeded (level 4) state learning standards on the assessments in the following core subject areas', 'student-performance-tab-data', 'student_performance', 'string') ; 
-		//$result = schoolprofiler_get_nyse_table('NY_STUDENT_PERFORMANCE_GROUP', 'ENTITY_CD', 'HTML_TABLE', $school_code, 'Student Performance---', 'student-performance-tab-data', 'student_performance', 'string') ; 
-		if ($result) { 
-    	// Add custom HTML to the content.
-		$variables['page']['content'][$result['content_field_name']] = [ 
-			'#type' => 'markup', 
-			'#markup' => $result['html'],	
-		];
-		}
+// 		// Student Performance related data
+// 		$result = schoolprofiler_get_nyse_table('NY_STUDENT_PERFORMANCE_GROUP', 'ENTITY_CD', 'HTML_TABLE', $school_code, 'The percent of students who met (level 3 or higher) or exceeded (level 4) state learning standards on the assessments in the following core subject areas', 'student-performance-tab-data', 'student_performance', 'string') ; 
+// 		//$result = schoolprofiler_get_nyse_table('NY_STUDENT_PERFORMANCE_GROUP', 'ENTITY_CD', 'HTML_TABLE', $school_code, 'Student Performance---', 'student-performance-tab-data', 'student_performance', 'string') ; 
+// 		if ($result) { 
+//     	// Add custom HTML to the content.
+// 		$variables['page']['content'][$result['content_field_name']] = [ 
+// 			'#type' => 'markup', 
+// 			'#markup' => $result['html'],	
+// 		];
+// 		}
 
-		$result = schoolprofiler_get_nyse_table('NY_ATTENDANCE_SUSPENSIONS', 'ENTITY_CD', 'HTML_TABLE', $school_code, 'Attendance and Suspensions', 'student-performance-tab-data', 'attendance_and_suspensions', 'string') ; 
-		if ($result) { 
-    	// Add custom HTML to the content.
-		$variables['page']['content'][$result['content_field_name']] = [ 
-			'#type' => 'markup', 
-			'#markup' => $result['html'], 
-		];
-		}
+// 		$result = schoolprofiler_get_nyse_table('NY_ATTENDANCE_SUSPENSIONS', 'ENTITY_CD', 'HTML_TABLE', $school_code, 'Attendance and Suspensions', 'student-performance-tab-data', 'attendance_and_suspensions', 'string') ; 
+// 		if ($result) { 
+//     	// Add custom HTML to the content.
+// 		$variables['page']['content'][$result['content_field_name']] = [ 
+// 			'#type' => 'markup', 
+// 			'#markup' => $result['html'], 
+// 		];
+// 		}
 		
-		$result = schoolprofiler_get_nyse_table('NY_REGENTS_GROUP', 'ENTITY_CD', 'HTML_TABLE', $school_code, 'The percent of students earning passing (65) or passing with distinction (85) scores on the following Regents Exams', 'student-performance-tab-data', 'regents_exam', 'string') ; 
-		if ($result) { 
-    	// Add custom HTML to the content.
-		$variables['page']['content'][$result['content_field_name']] = [ 
-			'#type' => 'markup', 
-			'#markup' => $result['html'], 
-		];
-		}
+// 		$result = schoolprofiler_get_nyse_table('NY_REGENTS_GROUP', 'ENTITY_CD', 'HTML_TABLE', $school_code, 'The percent of students earning passing (65) or passing with distinction (85) scores on the following Regents Exams', 'student-performance-tab-data', 'regents_exam', 'string') ; 
+// 		if ($result) { 
+//     	// Add custom HTML to the content.
+// 		$variables['page']['content'][$result['content_field_name']] = [ 
+// 			'#type' => 'markup', 
+// 			'#markup' => $result['html'], 
+// 		];
+// 		}
 		
-		$result = schoolprofiler_get_nyse_table('NY_HS_COMPLETION_RATES', 'ENTITY_CD', 'HTML_TABLE', $school_code, 'High School Completion Rates', 'student-performance-tab-data', 'high_school_completion_rates', 'string') ; 
-		if ($result) { 
-    	// Add custom HTML to the content.
-		$variables['page']['content'][$result['content_field_name']] = [ 
-			'#type' => 'markup', 
-			'#markup' => $result['html'], 
-		];
-		}		
+// 		$result = schoolprofiler_get_nyse_table('NY_HS_COMPLETION_RATES', 'ENTITY_CD', 'HTML_TABLE', $school_code, 'High School Completion Rates', 'student-performance-tab-data', 'high_school_completion_rates', 'string') ; 
+// 		if ($result) { 
+//     	// Add custom HTML to the content.
+// 		$variables['page']['content'][$result['content_field_name']] = [ 
+// 			'#type' => 'markup', 
+// 			'#markup' => $result['html'], 
+// 		];
+// 		}		
 
-	}
-}
+// 	}
+// }
 
-function schoolprofiler_geocode_by_address($node){
+// function schoolprofiler_geocode_by_address($node){
 
-	$get_geolocation = $node->get('field_geolocation')->getValue();
+// 	$get_geolocation = $node->get('field_geolocation')->getValue();
 
-	$lat = $get_geolocation['0']['lat'];
-	$lon = $get_geolocation['0']['lng'];
-	$field_address = $node->get('field_address')->getValue() ; 
+// 	$lat = $get_geolocation['0']['lat'];
+// 	$lon = $get_geolocation['0']['lng'];
+// 	$field_address = $node->get('field_address')->getValue() ; 
 
-	$address = array(
+// 	$address = array(
 
-      		'street' => $field_address[0]['address_line1'], 
-      		'city' =>  $field_address[0]['locality'], 
-		'state' => $field_address[0]['administrative_area'], 
-		'zip' => $field_address[0]['postal_code'], 
-	) ; 
+//       		'street' => $field_address[0]['address_line1'], 
+//       		'city' =>  $field_address[0]['locality'], 
+// 		'state' => $field_address[0]['administrative_area'], 
+// 		'zip' => $field_address[0]['postal_code'], 
+// 	) ; 
 
-	if (!empty($lat) && !empty($lon)){
-		return ; 
+// 	if (!empty($lat) && !empty($lon)){
+// 		return ; 
 
-	}
+// 	}
 
-	// get the geo code
-	//
-	// return a json object. we need to check for success
-	$geo_data = schoolprofiler_geocode_get_lat_long($address) ; 
+// 	// get the geo code
+// 	//
+// 	// return a json object. we need to check for success
+// 	$geo_data = schoolprofiler_geocode_get_lat_long($address) ; 
 
-	$geo_data = json_decode($geo_data->getContent(), true) ; 
+// 	$geo_data = json_decode($geo_data->getContent(), true) ; 
 
-	//dpm('result from geocoding') ; 
-	//dpm($geo_data) ; 
+// 	//dpm('result from geocoding') ; 
+// 	//dpm($geo_data) ; 
 
-	if ($geo_data['status'] == 'success' && $geo_data['data']) {
-		$geo_data = $geo_data['data'] ; // contains lat long
+// 	if ($geo_data['status'] == 'success' && $geo_data['data']) {
+// 		$geo_data = $geo_data['data'] ; // contains lat long
 
-	}
+// 	}
 
 
-	$node->set('field_geolocation', [ 
-		'lat' => $geo_data['lat'], 
-		'lng' => $geo_data['lon'],
-	    ]);
+// 	$node->set('field_geolocation', [ 
+// 		'lat' => $geo_data['lat'], 
+// 		'lng' => $geo_data['lon'],
+// 	    ]);
 
-}
+// }
 
-function schoolprofiler_node_presave(NodeInterface $node) {
+// function schoolprofiler_node_presave(NodeInterface $node) {
 	
-	// Check if the node type is "school_profile".
-  if ($node->bundle() === 'school_profile') {
-	 schoolprofiler_geocode_by_address($node) ; 
+// 	// Check if the node type is "school_profile".
+//   if ($node->bundle() === 'school_profile') {
+// 	 schoolprofiler_geocode_by_address($node) ; 
 
- // K-5
-	$gs_cat = array() ; 
-	$gs_cat['K-5'] = array ('K', 1, 2, 3, 4, 5) ; // 6
-	$gs_cat['K-8'] = array ('K', 1, 2, 3, 4, 5, 6, 7, 8) ; // 9 
-	$gs_cat['K-12'] = array ('K', 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12) ; // 13
-	$gs_cat['6-8'] = array (6, 7, 8) ; // 3 
-	$gs_cat['6-12'] = array (6, 7, 8, 9, 10, 11, 12) ; // 7 
-	$gs_cat['9-12'] = array (9, 10, 11, 12) ;  // 4 
+//  // K-5
+// 	$gs_cat = array() ; 
+// 	$gs_cat['K-5'] = array ('K', 1, 2, 3, 4, 5) ; // 6
+// 	$gs_cat['K-8'] = array ('K', 1, 2, 3, 4, 5, 6, 7, 8) ; // 9 
+// 	$gs_cat['K-12'] = array ('K', 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12) ; // 13
+// 	$gs_cat['6-8'] = array (6, 7, 8) ; // 3 
+// 	$gs_cat['6-12'] = array (6, 7, 8, 9, 10, 11, 12) ; // 7 
+// 	$gs_cat['9-12'] = array (9, 10, 11, 12) ;  // 4 
 	
-	if ($node->hasField('field_grades_served')) {
-		$grades_served = $node->get('field_grades_served')->getValue() ; 
-	}
+// 	if ($node->hasField('field_grades_served')) {
+// 		$grades_served = $node->get('field_grades_served')->getValue() ; 
+// 	}
 
-	//dpm($grades_served) ; 
+// 	//dpm($grades_served) ; 
 
-	$grades_served_new = array() ; 
+// 	$grades_served_new = array() ; 
 
-	foreach($grades_served as $grade){ 
+// 	foreach($grades_served as $grade){ 
 
-		if ($grade['value'] == 'KFULL' || $grade['value'] == 'KHALF') { 
-			$grades_served_new['K'] = 'K' ; 
-		}
-		else { 
+// 		if ($grade['value'] == 'KFULL' || $grade['value'] == 'KHALF') { 
+// 			$grades_served_new['K'] = 'K' ; 
+// 		}
+// 		else { 
 
-			if ($grade['value'] != 'UGE' && $grade['value'] != 'UGS'){
-				$grades_served_new[$grade['value']] = $grade['value']; 
-			}
+// 			if ($grade['value'] != 'UGE' && $grade['value'] != 'UGS'){
+// 				$grades_served_new[$grade['value']] = $grade['value']; 
+// 			}
 
-		}
+// 		}
 
-	}
+// 	}
 
 
-  //  dpm($grades_served_new) ; 
+//   //  dpm($grades_served_new) ; 
 
-    foreach($gs_cat as $gs_key => $gs){
+//     foreach($gs_cat as $gs_key => $gs){
 	    	
-	    if (count($gs) == count($grades_served_new) && !array_diff($gs, $grades_served_new)){ // 
-		    if ($node->get('field_grade_served_group')->isEmpty() || $node->get('field_grade_served_group')->value == 'NO MATCH'){ 
-			    $node->set('field_grade_served_group', $gs_key) ; 
-			    break ; 
-			//    dpm($gs_key); 
-		    }
+// 	    if (count($gs) == count($grades_served_new) && !array_diff($gs, $grades_served_new)){ // 
+// 		    if ($node->get('field_grade_served_group')->isEmpty() || $node->get('field_grade_served_group')->value == 'NO MATCH'){ 
+// 			    $node->set('field_grade_served_group', $gs_key) ; 
+// 			    break ; 
+// 			//    dpm($gs_key); 
+// 		    }
 
-	    }
-	    else {
-		    $node->set('field_grade_served_group', 'NO MATCH') ; 
-	    }
+// 	    }
+// 	    else {
+// 		    $node->set('field_grade_served_group', 'NO MATCH') ; 
+// 	    }
 	 
-	//    $node->save() ; 
-    }
+// 	//    $node->save() ; 
+//     }
 
-  }
-}
+//   }
+// }

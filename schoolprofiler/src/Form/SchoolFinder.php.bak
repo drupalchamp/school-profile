@@ -810,8 +810,8 @@ class SchoolFinder extends FormBase {
 
 			$address = $this->get_schoolprofile_address($node) ; 
 
-			$html .= "<tr id=\"{$node->id()}\">";
-			$html .= "<td></td>";
+			$html .= "<tr id=\"node-{$node->id()}\">";
+			$html .= "<td><input class=\"sf-nid-checkbox\" type=\"checkbox\" name=\"nid\" value=\"{$node->id()}\" id=\"nid-{$node->id()}\"></td>";
 			
 			$html .= "<td><div class=\"sf-results-title\"><label for=\"node-{$node->id()}\"> {$node_link} " . 
 				"</label></div><div class=\"school-address\"> {$address}</div></td></tr>";
@@ -896,8 +896,8 @@ class SchoolFinder extends FormBase {
 				}
 			}
 
-			$html .= "<tr id=\"{$node->id()}\">";
-			$html .= "<td></td>";
+			$html .= "<tr id=\"node-{$node->id()}\">";
+			$html .= "<td><input class=\"sf-nid-checkbox\" type=\"checkbox\" name=\"nid\" value=\"{$node->id()}\" id=\"nid-{$node->id()}\"></td>";
 			
 			$html .= "<td><div class=\"sf-results-title\"><label for=\"node-{$node->id()}\"> {$node_link} " . 
 				"</label></div><div class=\"school-address\"> {$address}</div><div class=\"school-zip-code\">Approximate Distance: {$distance}</div></td></tr>";
