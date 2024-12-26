@@ -11,12 +11,12 @@
 
 		      grade.addEventListener('focus', function () {
 				    prevGrade = grade.value  ; 
-            console.log('The prev value is: ' + prevGrade) ; 
+            // console.log('The prev value is: ' + prevGrade) ; 
           }) ; 
 
           grade.addEventListener('change', function (){
             newGrade = grade.value ; 
-            console.log('new grade: ' + newGrade) ; 
+            // console.log('new grade: ' + newGrade) ; 
 
 
             const form = context.querySelector('#school-finder-form');
@@ -46,7 +46,7 @@
             const distance = context.querySelector('#edit-location-distance') ; 
             const distanceValue = context.querySelector('#edit-location-distance').value ; 
 
-            console.log('Resetting form')  ; 
+            // console.log('Resetting form')  ; 
 
             // reset the form 
 
@@ -55,7 +55,7 @@
             schoolName.value = schoolNameValue  ; 
             grade.value = newGrade ; 
 
-            console.log('nyc school: ' + nycSchool) ; 
+            // console.log('nyc school: ' + nycSchool) ; 
 
             if (nycSchoolValue){
               nycSchool.checked = true ; 
@@ -64,7 +64,7 @@
             if (schoolTypeValue){
               schoolType.value = schoolTypeValue ; 
               schoolType.checked = true ; 
-              console.log('school type value : ' + schoolTypeValue) ; 
+              // console.log('school type value : ' + schoolTypeValue) ; 
             }
 
             address1.value = address1Value  ; 

@@ -765,7 +765,7 @@ class SchoolProfilerController extends ControllerBase {
 		}
 
 		// Display the table based on Private & Public condition.
-		if ($school_type == 'private') {
+		if ($school_type == 1) {
 			$table_markup_private = '
 			<h2>Private schools comparison table</h2>
 			<table class="comparison-table">

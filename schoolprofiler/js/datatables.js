@@ -59,7 +59,7 @@ let called = false;
         if (node) {
           const clone = node.cloneNode(true);
           clone.id = 'compare-btn-top2';
-          document.querySelector('#schoolfinder-results').appendChild(clone);
+          document.querySelector('#schoolfinder-results').appendChild(clone);                    
         }
 
         // Checkbox click handling
@@ -97,12 +97,17 @@ let called = false;
           const filteredNodes = totalNodeSelected.filter((el) => el != null);
           updateCompareLink(filteredNodes);
 
-          if (selectedCount > 4) {
+          if (selectedCount > 4) {               
+
             finderResults.rows().every(function () {
               const rowNode = this.node();
               const checkbox = rowNode.querySelector('.dt-select-checkbox');
               if (checkbox && !checkbox.checked) checkbox.disabled = true;
             });
+              // To display an alert when the maximum number of schools to compare is reached          
+              setTimeout(function() {
+                alert('You have reached the maximum limit for school selections. A maximum of ' + selectedCount + ' schools can be compared at a time.');
+              }, 100);
           } else {
             finderResults.rows().every(function () {
               const rowNode = this.node();
@@ -114,6 +119,13 @@ let called = false;
           const compareBtn1 = document.getElementById('compare-btn-top');
           const compareBtn2 = document.getElementById('compare-btn-top2');
 
+          // Remove the "entries" text
+          const infoDiv = document.getElementById('finder-results_info');
+          if (infoDiv) {
+              infoDiv.innerHTML = infoDiv.innerHTML.replace(/entries/i, '').trim();
+          }
+
+
           if (selectedCount < 2) {
             console.log(compareBtn1)
             if (compareBtn1)
@@ -122,7 +134,7 @@ let called = false;
               compareBtn2.style.display = 'none';
           } else {
             document.querySelectorAll('.clear-compare-list').forEach((element) => {
-              element.innerHTML = `Ready to compare ${selectedCount} schools. <span class="clear-list"><a href="#">Clear List</a></span>`;
+              element.innerHTML = `Ready to compare ${selectedCount} schools. <span class="clear-list"><a href="#">Clear List</a></span>`;            
             });
 
             if (compareBtn1) compareBtn1.style.display = 'block';

@@ -641,8 +641,8 @@ class SchoolFinder extends FormBase {
 		     ->condition('status', 1)
 		     ->condition('type', 'school_profile')
 		     ->sort('title', 'ASC') 
-		     ->accessCheck(FALSE) ; 
-
+		     ->accessCheck(FALSE) ; 					
+					
 
 		if (!empty($params['title'])){
 			$query->condition('title', '%' . $params['title'] . '%', 'LIKE') ; 
@@ -721,22 +721,74 @@ class SchoolFinder extends FormBase {
 
 		}
 
-		if (!empty($params['pk_age_year']) || !empty($params['pk_age_month'])){
-			$age = $params['pk_age_year'] . "." . $params['pk_age_month'] ; 
+	// 	if (!empty($params['pk_age_year']) || !empty($params['pk_age_month'])){
+	// 		$age = $params['pk_age_year'] . "." . $params['pk_age_month'] ; 
 
-			// //dpm($age) ; 
-			$query->condition('field_ages_served_from', $age, '>=') ; 
-	//		$query->condition('field_ages_served_to', $age, '<=') ; 
-		}
-
-
+	// 		// //dpm($age) ; 
+	// 		$query->condition('field_ages_served_from', $age, '>=') ; 
+	// //		$query->condition('field_ages_served_to', $age, '<=') ; 
+	// 	}
 
 	//	$query->range(0, self::MAX_RESULT_DISPLAY) ; 
 
 		$ids = $query->execute();  
+		// \Drupal::logger('fgertgher')->warning('<pre><code>' . print_r(['IDS' => $ids], TRUE) . '</code></pre>');
+	
+		$nodes = $nodeStorage->loadMultiple($ids);		
 
+		if(!empty($params['pk_age_year']) && !empty($params['pk_age_month'])){
+			$duration = (float) $params['pk_age_year'] . '.' . $params['pk_age_month'];
+			 }
+			 if(!empty($params['pk_age_year']) && (empty($params['pk_age_month']) || $params['pk_age_month'] == '0')){
+				$duration = (float) $params['pk_age_year'] . '.' . 0;
+			}
+				 if((empty($params['pk_age_year']) || $params['pk_age_year'] == '0') && !empty($params['pk_age_month'])){
+					$duration =  (float) (0). '.' . $params['pk_age_month'];
+					 }
+					//  \Drupal::logger('DURATION')->warning('<pre><code>' . print_r($duration, TRUE) . '</code></pre>');
+				if(isset($duration)){
+					
+					// \Drupal::logger('duration type')->warning('<pre><code>' . print_r(['duration' => gettype($duration)], TRUE) . '</code></pre>');
+					$new_nodes = [];
+					foreach ($nodes as $node){									
+								 if ($node->hasField('field_schedule') && !$node->get('field_schedule')->isEmpty()) {
+									// $paragraphs = $node->get('field_schedule')->referencedEntities();
+									$in_range = false;
+									foreach ($node->get('field_schedule')->referencedEntities() as $paragraph) {
+										$from = $paragraph->field_age_range->getValue()[0]['from'];
+										$to = $paragraph->field_age_range->getValue()[0]['to'];										
+										// \Drupal::logger('From_to_values')->warning('<pre><code>' . print_r(['from' => gettype((float) $from), 'to' => gettype((float) $to)], TRUE) . '</code></pre>');
+										if($duration >= (float) $from && $duration <= (float) $to){	
+											$in_range = true;
+											// \Drupal::logger('Id of node')->warning('<pre><code>' . print_r($node->id(), TRUE) . '</code></pre>');
+											break;
+										}
+									}
+									if($in_range == true){	
+										$new_nodes[] = $node ;
+									}
+								}
+								
+					}
+					return array($new_nodes,count($new_nodes));
+				}
+				else{
+					return array($nodes,count($nodes));
+				}
+		// return array($nodes,count($nodes));
+	}
 
-		$nodes = $nodeStorage->loadMultiple($ids);
+	public function schoolprofiler_get_schools($params){
+		$nodeStorage = \Drupal::entityTypeManager()->getStorage('node') ; 
+
+		$query = $nodeStorage->getQuery() ; 
+
+		$query->condition('type', 'school') ; 
+
+		if (!empty($params['total_enrollment'])){
+			switch ($params['total_enrollment']){
+				case 1:
+		}
 
 	//	$count_query = clone $query ; 
 
@@ -746,7 +798,7 @@ class SchoolFinder extends FormBase {
 
 		return array($nodes, count($nodes)) ; 
 	}
-
+	}
 	public function schoolprofiler_add_criteria($query, $field_name, $value, $compare = '='){
 		// //dpm('xxx') ; 
 		if (!empty($value)){
@@ -811,9 +863,9 @@ class SchoolFinder extends FormBase {
 			$address = $this->get_schoolprofile_address($node) ; 
 
 			$html .= "<tr id=\"{$node->id()}\">";
-			$html .= "<td></td>";
+			$html .= "<td><input class=\"sf-nid-checkbox\" type=\"checkbox\" name=\"nid\" value=\"{$node->id()}\" id=\"nid-{$node->id()}\"></td>";
 			
-			$html .= "<td><div class=\"sf-results-title\"><label for=\"node-{$node->id()}\"> {$node_link} " . 
+			$html .= "<td><div class=\"sf-results-title\"><label for=\"{$node->id()}\"> {$node_link} " . 
 				"</label></div><div class=\"school-address\"> {$address}</div></td></tr>";
 				
 			++$total_schools ; 
@@ -896,8 +948,8 @@ class SchoolFinder extends FormBase {
 				}
 			}
 
-			$html .= "<tr id=\"{$node->id()}\">";
-			$html .= "<td></td>";
+			$html .= "<tr id=\"node-{$node->id()}\">";
+			$html .= "<td><input class=\"sf-nid-checkbox\" type=\"checkbox\" name=\"nid\" value=\"{$node->id()}\" id=\"nid-{$node->id()}\"></td>";
 			
 			$html .= "<td><div class=\"sf-results-title\"><label for=\"node-{$node->id()}\"> {$node_link} " . 
 				"</label></div><div class=\"school-address\"> {$address}</div><div class=\"school-zip-code\">Approximate Distance: {$distance}</div></td></tr>";
@@ -1137,7 +1189,7 @@ class SchoolFinder extends FormBase {
 		$sqresults =  $this->schoolProfileSearchQuery($params) ; 		
 
 		$nodes = $sqresults[0] ; 
-
+		// \Drupal::logger('what_a_nice_logName')->warning('<pre><code>' . print_r(count($nodes), TRUE) . '</code></pre>');
 		$total_rows = $sqresults[1] ; 
 
 
@@ -1166,7 +1218,6 @@ class SchoolFinder extends FormBase {
 		}
 		else { 
 			$res = $this->basic_schoolfinder_results($nodes) ; 
-
 		}
 
 		$html = $res[0] ; 

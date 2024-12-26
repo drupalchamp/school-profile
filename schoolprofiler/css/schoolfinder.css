@@ -126,7 +126,23 @@ div#student_demographics_data {
     bottom: -50px;
     z-index: 999;
 }
-
 .students-performance tr td:first-child {
     width: 125px;
+}
+
+#schoolfinder-results table.dataTable>tbody>tr.selected>*{
+    box-shadow: none !important;
+}
+#schoolfinder-results tr.selected td{
+    background: none !important;
+}
+#schoolfinder-results span.select-info{
+    display: none;
+}
+div#compare-limit-message {
+    font-weight: bold;
+    margin: 7px 0px;
+}
+#schoolfinder-results svg{
+    max-width: 50px;
 }
